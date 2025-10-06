@@ -1,0 +1,25 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "bachelorThesis"
+version = "0.1.0"
+description = "Bachelor thesis framework"
+authors = [
+    { name="Viktor Szolga", email="viktor.emil.szolga@gmail.com" }
+]
+dependencies = [
+    "torch>=2.7",
+    "torchmetrics>=1.7",
+    "scikit-learn>=1.7",
+    "numpy>=2.3",
+    "scipy>=1.16",
+    "matplotlib>=3.10",
+    "pandas>=2.3",
+    "tqdm>=4.67",
+    "omegaconf>=2.3",
+    "openai>=1.100",
+    "sentence-transformers>=5.1",
+    "seaborn>=0.13",
+]

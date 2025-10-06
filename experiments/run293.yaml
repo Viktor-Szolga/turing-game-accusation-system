@@ -1,0 +1,14 @@
+data:
+  split_by: gameID
+model:
+  type: LinearClassifier
+  input_size: 1024
+  output_size: 2
+training:
+  batch_size: 64
+  epochs: 300
+validation:
+  batch_size: 64
+optimizer:
+  type: adamW
+  lr: 0.001

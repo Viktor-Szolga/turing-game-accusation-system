@@ -1,0 +1,10 @@
+run077.yaml: Model B | lr=0.0005 | dropout=0.85 | weight_decay=0
+run082.yaml: Model B | lr=0.001 | dropout=0.85 | weight_decay=0
+run191.yaml: Model B | lr=0.0005 | dropout=0.85 | weight_decay=0.001
+run192.yaml: Model B | lr=0.0005 | dropout=0.85 | weight_decay=0.005
+run193.yaml: Model B | lr=0.0005 | dropout=0.85 | weight_decay=0.0005
+run194.yaml: Model B | lr=0.0005 | dropout=0.85 | weight_decay=0.0001
+run211.yaml: Model B | lr=0.001 | dropout=0.85 | weight_decay=0.001
+run212.yaml: Model B | lr=0.001 | dropout=0.85 | weight_decay=0.005
+run213.yaml: Model B | lr=0.001 | dropout=0.85 | weight_decay=0.0005
+run214.yaml: Model B | lr=0.001 | dropout=0.85 | weight_decay=0.0001
