@@ -1,0 +1,20 @@
+data:
+  split_by: gameID
+model:
+  type: MessageClassifier
+  input_size: 1024
+  hidden_sizes:
+  - 512
+  - 128
+  - 32
+  output_size: 2
+  dropout: 0.85
+training:
+  batch_size: 64
+  epochs: 300
+validation:
+  batch_size: 64
+optimizer:
+  type: adamW
+  lr: 0.0005
+  weight_decay: 0

@@ -1,0 +1,174 @@
+run_names = [
+    "run012",
+    "run065",
+    "run066",
+    "run067",
+    "run013",
+    "run015",
+    "run017",
+]
+legends = [
+    "A | lr=0.001 | Dropout=0.0 | Weight decay=0.0",
+    "A | lr=0.001 | Dropout=0.65 | Weight decay=0.0",
+    "A | lr=0.001 | Dropout=0.75 | Weight decay=0.0",
+    "A | lr=0.001 | Dropout=0.85 | Weight decay=0.0",
+    "A | lr=0.001 | Dropout=0.0 | Weight decay=0.1",
+    "A | lr=0.001 | Dropout=0.0 | Weight decay=0.01",
+    "A | lr=0.001 | Dropout=0.0 | Weight decay=0.001",
+]
+model_regularizations = [
+    "no",
+    "dropout",
+    "dropout",
+    "dropout",
+    "wd",
+    "wd",
+    "wd",
+]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+run_names = [
+    "run030",
+    "run080",
+    "run081",
+    "run082",
+    "run031",
+    "run033",
+    "run035",
+]
+
+legends = [
+    "B | lr=0.001 | Dropout=0.0 | Weight decay=0.0",
+    "B | lr=0.001 | Dropout=0.65 | Weight decay=0.0",
+    "B | lr=0.001 | Dropout=0.75 | Weight decay=0.0",
+    "B | lr=0.001 | Dropout=0.85 | Weight decay=0.0",
+    "B | lr=0.001 | Dropout=0.0 | Weight decay=0.1",
+    "B | lr=0.001 | Dropout=0.0 | Weight decay=0.01",
+    "B | lr=0.001 | Dropout=0.0 | Weight decay=0.001",
+]
+
+model_regularizations = [
+    "no",
+    "dropout",
+    "dropout",
+    "dropout",
+    "wd",
+    "wd",
+    "wd",
+]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+run_names = [
+    "run048",
+    "run095",
+    "run096",
+    "run097",
+    "run049",
+    "run051",
+    "run053",
+]
+
+legends = [
+    "C | lr=0.001 | Dropout=0.0 | Weight decay=0.0",
+    "C | lr=0.001 | Dropout=0.65 | Weight decay=0.0",
+    "C | lr=0.001 | Dropout=0.75 | Weight decay=0.0",
+    "C | lr=0.001 | Dropout=0.85 | Weight decay=0.0",
+    "C | lr=0.001 | Dropout=0.0 | Weight decay=0.1",
+    "C | lr=0.001 | Dropout=0.0 | Weight decay=0.01",
+    "C | lr=0.001 | Dropout=0.0 | Weight decay=0.001",
+]
+
+model_regularizations = [
+    "no",
+    "dropout",
+    "dropout",
+    "dropout",
+    "wd",
+    "wd",
+    "wd",
+]
+
+
+
+
+
+
+
+
+
+run_names = [
+    "run132",
+    "run191",
+    "run180",
+    "run195",
+    "run271",
+    "run265",
+    "run235",
+]
+
+legends = [
+    "A | lr=0.0005 | Dropout=0.85 | Weight decay=0.0005",
+    "B | lr=0.0005 | Dropout=0.85 | Weight decay=0.001",
+    "B | lr=0.0005 | Dropout=0.55 | Weight decay=0.0005",
+    "B | lr=0.0005 | Dropout=0.95 | Weight decay=0.001",
+    "C | lr=0.001 | Dropout=0.85 | Weight decay=0.001",
+    "C | lr=0.001 | Dropout=0.65 | Weight decay=0.0005",
+    "C | lr=0.0001 | Dropout=0.95 | Weight decay=0.001",
+]
+
+model_regularizations = [
+    "A",
+    "B",
+    "B",
+    "B",    
+    "C",
+    "C",
+    "C"
+]
