@@ -49,7 +49,6 @@ def create_heatmap_data(runs, validation_data):
     """Create data structure for plotting grouped by learning rate and model."""
     allowed_weight_decays = {1e-4, 5e-4, 1e-3, 5e-3}
     
-    # Filter runs: dropout >= 0.55 and weight decay in allowed set
     filtered_runs = [
         run for run in runs 
         if (run['dropout'] >= 0.55 and 
@@ -57,7 +56,6 @@ def create_heatmap_data(runs, validation_data):
                 for wd in allowed_weight_decays))
     ]
     
-    # Group by learning rate and model
     lr_model_groups = defaultdict(lambda: defaultdict(list))
     for run in filtered_runs:
         lr_model_groups[run['lr']][run['model']].append(run)
@@ -66,8 +64,6 @@ def create_heatmap_data(runs, validation_data):
     
     for lr, model_groups in lr_model_groups.items():
         heatmap_data[lr] = {}
-        
-        # Get unique dropout and weight_decay values for this LR
         all_dropouts = set()
         all_weight_decays = set()
         for model_runs in model_groups.values():
@@ -114,8 +110,7 @@ def plot_meshgrids(heatmap_data, figsize_per_model=(7, 6)):
         
         if n_models == 0:
             continue
-
-        # --- Compute global ranges across models for this learning rate ---
+        
         all_dropouts = []
         all_weight_decays = []
         all_losses = []
@@ -146,14 +141,14 @@ def plot_meshgrids(heatmap_data, figsize_per_model=(7, 6)):
             if Z.size == 0 or np.isnan(Z).all():
                 continue
             
-            # Create meshgrid
+
             X, Y = np.meshgrid(weight_decays, dropouts)
             
-            # 3D axis
+            
             ax = fig.add_subplot(1, n_models, i, projection='3d')
             axes.append(ax)
             
-            # Plot surface with consistent colormap scaling
+            
             surf = ax.plot_surface(
                 X, Y, Z,
                 cmap='viridis_r',
@@ -169,19 +164,19 @@ def plot_meshgrids(heatmap_data, figsize_per_model=(7, 6)):
             ax.set_zlabel("Validation Loss")
             ax.set_title(f"{model}")
 
-            # Apply global axis limits
+
             ax.set_xlim(x_min, x_max)
             ax.set_ylim(y_min, y_max)
             ax.set_zlim(z_min, z_max)
 
-        # Shared colorbar for all models in this learning rate
+
         cbar_ax = fig.add_axes([0.92, 0.15, 0.02, 0.7])  # [left, bottom, width, height]
         fig.colorbar(surfaces[0], cax=cbar_ax)
         cbar_ax.tick_params(labelsize=10)
 
         fig.suptitle(f"Validation Loss Meshgrids - Learning Rate: {lr}", fontsize=14, y=0.98)
 
-        # Adjust subplot spacing to leave room for colorbar
+
         fig.subplots_adjust(left=0.05, right=0.85, top=0.9, bottom=0.1, wspace=0.3)
 
         plt.show()
@@ -195,7 +190,7 @@ def main():
     run_names = [run['run_id'] for run in runs]
     validation_data = load_validation_data(run_names)
     
-    # Filter out runs with missing data
+    
     valid_runs = [run for run in runs if validation_data[run['run_id']] != float('inf')]
     
     print(f"Found validation data for {len(valid_runs)} runs")
