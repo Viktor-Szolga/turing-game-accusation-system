@@ -6,8 +6,8 @@ The project uses [Poetry](https://python-poetry.org/) for dependency management.
 
 1. Clone this repository:
    ```bash
-   git clone https://github.com/Viktor-Szolga/reverse-turing-game-classifier.git
-   cd reverse-turing-game-classifier
+   git clone https://github.com/Viktor-Szolga/turing-game-accusation-system.git
+   cd turing-game-accusation-system
    ```
 
 2. Create the environment with Poetry:
@@ -47,7 +47,7 @@ python BoW_encodings.py
 ## Recreating Plots
 Use `create_plots.py` and `create_plots_manually.py` to generate the visualizations from the thesis:
 
-Make sure to select the correct runs according to the configurations in `experiments/`.
+Make sure to set the variables correctly using the information in `create_plots_manually_variables.py`.
 
 ## Analysis and Evaluation
 The repository also includes notebooks with the analysis and evaluation performed during the thesis:
@@ -55,4 +55,4 @@ The repository also includes notebooks with the analysis and evaluation performe
 - `analysis/data_analysis.ipynb`: Contains the data exploration and analysis steps.
 - `analysis/classifier_evaluation.ipynb`: Contains the evaluation of the trained classifiers.
 
-The results of these notebooks are already included in the repository for transparency and reproducibility.
+The analysis in classifier_evaluation requires the encoding model running on the Turing Game server.
