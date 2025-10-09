@@ -34,4 +34,6 @@ model.load_state_dict(torch.load(os.path.join("trained_models", "run083.pth"), w
 # Model B 0.85 dropout
 model = MessageClassifier(input_size=1024, hidden_sizes=[48, 24], output_size=2)
 model.load_state_dict(torch.load(os.path.join("trained_models", "run082.pth"), weights_only=True))
+
+
 visualize_weights(model)
