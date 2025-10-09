@@ -16,6 +16,10 @@ class Trainer:
         self.messages, self.labels, self.game_ids = load_data(self.config.data.pickle)
 
         self.message_encodings, self.labels, self.game_ids = load_pre_embedded(self.config.data.folder)
+        self.labels = np.array(self.labels)
+        for i, label in enumerate(self.labels):
+            if self.labels[i][1] == 2:
+                self.labels[i] = [0, 1]
 
         # Splits data as specified in the config
         match self.config.data.split_by:

@@ -39,7 +39,7 @@ def load_data(path: str):
             messages.append(message["message"])
             labels.append([int(not message["botID"]), message["botID"]])
             game_ids.append(message["gameID"])
-        
+    print(np.unique(np.array(labels)))
     return messages, labels, game_ids
 
 
