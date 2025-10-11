@@ -10,16 +10,11 @@ from omegaconf import OmegaConf
 import random
 
 
-ROOT_DIR = "early_stopping"
-CHECKPOINT_DIR = "checkpoints"
+ROOT_DIR = "gridsearch"
+CHECKPOINT_DIR = "trained_models"
 N_BINS = 10
 METRIC = "ece"  # "ece" or "brier"
 TOP_K = 3 # Number plotted
-
-RUN_NAME = "run082"
-CONFIG_FILE = f"{RUN_NAME}.yaml"
-SEED = 42
-
 
 def get_bot_probability(h_i, b_i):
     return np.exp(b_i) / (np.exp(h_i) + np.exp(b_i))
