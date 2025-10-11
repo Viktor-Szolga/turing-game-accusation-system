@@ -75,8 +75,9 @@ class Trainer:
         best_val_loss = float('inf')
         best_epoch = 0
         patience_counter = 0
-        patience_limit = 10  # stop if no improvement for 10 epochs
+        patience_limit = train_config.early_stopping_patience
         stopped = False
+        log_text = None
 
         # Make sure output directory exists
         os.makedirs("checkpoints", exist_ok=True)
@@ -126,6 +127,7 @@ class Trainer:
                 best_epoch = epoch
                 patience_counter = 0
                 torch.save(model.state_dict(), model_path)
+                log_text = f"{self.run_name} | {best_val_loss:.6f} | {best_epoch}\n"
 
                 # Write info file
             else:
@@ -133,8 +135,10 @@ class Trainer:
 
             if patience_counter >= patience_limit and not stopped:
                 with open(info_path, "a") as f:
-                    f.write(f"{self.run_name} | {best_val_loss:.6f} | {best_epoch}\n")
+                    f.write(log_text)
                 stopped = True
+                if train_config.continue_training is False:
+                    break
 
         model.eval()
         model.to("cpu")
