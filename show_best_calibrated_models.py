@@ -9,12 +9,12 @@ from src.trainer import Trainer
 from omegaconf import OmegaConf
 import random
 
-# ---------------- CONFIG ----------------
-CHECKPOINT_DIR = "trained_models"
+
+ROOT_DIR = "early_stopping"
+CHECKPOINT_DIR = "checkpoints"
 N_BINS = 10
 METRIC = "ece"  # "ece" or "brier"
-#METRIC = "brier"
-TOP_K = 3
+TOP_K = 3 # Number plotted
 
 RUN_NAME = "run082"
 CONFIG_FILE = f"{RUN_NAME}.yaml"
@@ -74,29 +74,25 @@ def evaluate_model(model, val_loader):
 
     return score, probs_bal, labels_bal
 
-# ---------------- EVALUATE ALL CHECKPOINTS ----------------
-checkpoint_files = [f for f in os.listdir(CHECKPOINT_DIR) if f.endswith(".pth")]
+
+checkpoint_files = [f for f in os.listdir(os.path.join(ROOT_DIR, CHECKPOINT_DIR)) if f.endswith(".pth")]
 results = []
 
 for ckpt_file in checkpoint_files:
-    # ---------------- SET SEEDS ----------------
-    torch.manual_seed(SEED)
-    np.random.seed(SEED)
-    random.seed(SEED)
-
-    # ---------------- LOAD CONFIG ----------------
-    default_config = OmegaConf.load(os.path.join("experiments", "default.yaml"))
-    specific_config = OmegaConf.load(os.path.join("experiments", f"{ckpt_file[:-4]}.yaml"))
+    default_config = OmegaConf.load(os.path.join(ROOT_DIR, "experiments", "default.yaml"))
+    specific_config = OmegaConf.load(os.path.join(ROOT_DIR, "experiments", f"{ckpt_file[:-4]}.yaml"))
     config = OmegaConf.merge(default_config, specific_config)
     config.device = "cpu"
-    config.name = CONFIG_FILE
+    config.name = f"{ckpt_file[:-4]}.yaml"
 
-    # ---------------- INIT TRAINER ----------------
-    trainer = Trainer(config, RUN_NAME)
+    torch.manual_seed(config.misc.seed)
+    np.random.seed(config.misc.seed)
+    random.seed(config.misc.seed)
 
-    # ---------------- UTILS ----------------
+    trainer = Trainer(config, ckpt_file[:-4])
+
     model = initialize_model(config)
-    model.load_state_dict(torch.load(os.path.join(CHECKPOINT_DIR, ckpt_file)))
+    model.load_state_dict(torch.load(os.path.join(ROOT_DIR, CHECKPOINT_DIR, ckpt_file)))
     
     score, probs_bal, labels_bal = evaluate_model(model, trainer.val_loader)
     results.append({
@@ -107,8 +103,8 @@ for ckpt_file in checkpoint_files:
     })
     print(f"{ckpt_file}: {METRIC.upper()} = {score:.4f}")
 
-# ---------------- SORT AND PLOT TOP K ----------------
-results.sort(key=lambda x: x["score"])  # lower ECE is better
+
+results.sort(key=lambda x: x["score"])
 top_results = results[:TOP_K]
 
 plt.figure(figsize=(8, 8))

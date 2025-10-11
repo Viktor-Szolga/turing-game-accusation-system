@@ -6,8 +6,8 @@ from itertools import cycle
 from extract_runs import load_runs, query_runs
 import matplotlib.ticker as ticker
 
-
-runs = load_runs("runs.txt")
+root_dir = "gridsearch"
+runs = load_runs(os.path.join(root_dir, "runs.txt"))
 # Example query
 res = query_runs(runs, model="Model B", dropout=0.85, weight_decay=0)
 #res=res[-9:] # use for dropout 0.0 and weight_decay 0.0 to filter duplicates
@@ -31,7 +31,7 @@ train_losses, val_losses = [], []
 
 
 for run in run_names:
-    with open(os.path.join("training_information", f"{run}.pkl"), "rb") as f:
+    with open(os.path.join(root_dir, "training_information", f"{run}.pkl"), "rb") as f:
         data = pickle.load(f)
         train_losses.append(data["train_loss"])
         val_losses.append(data["validation_loss"])

@@ -39,7 +39,6 @@ def load_data(path: str):
             messages.append(message["message"])
             labels.append([int(not message["botID"]), message["botID"]])
             game_ids.append(message["gameID"])
-    print(np.unique(np.array(labels)))
     return messages, labels, game_ids
 
 
@@ -101,7 +100,6 @@ def plot_curves_on_ax(ax, *args, metric="Loss", title="Plot", legend=None, logy=
     for curve in args:
         if metric == "Error rate":
             curve = [1-val for val in curve]
-            print(curve[-1])
         ax.plot(np.arange(len(curve)), curve)
         
     if legend:

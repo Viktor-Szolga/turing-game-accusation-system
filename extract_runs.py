@@ -1,6 +1,6 @@
 import math
 from typing import Optional
-
+import os
 
 def load_runs(filepath: str):
     runs = []
@@ -87,7 +87,8 @@ def format_results(runs):
 
 
 if __name__ == "__main__":
-    runs = load_runs("runs.txt")
+    root_dir = "gridsearch"
+    runs = load_runs(os.path.join(root_dir, "runs.txt"))
 
     # Example: Model C with dropout between 0.5 and 0.75, any lr, weight_decay fixed
     res = query_runs(
