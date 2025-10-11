@@ -7,8 +7,8 @@ from src.trainer import Trainer
 import os
 import pickle
 
-root_dir = "gridsearch"
-config_name = "run082.yaml"
+root_dir = "early_stopping"
+config_name = "run069.yaml"
 training_information = {}
 print("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -24,7 +24,7 @@ np.random.seed(config.misc.seed)
 random.seed(config.misc.seed)
 
 # Initialize model and trainer
-trainer = Trainer(config)
+trainer = Trainer(config, config.name)
 model = initialize_model(config)
 
 with open("data/user_ids.pkl", "rb") as f:
@@ -33,7 +33,7 @@ with open("data/user_ids.pkl", "rb") as f:
 users_in_train = set(user_ids[trainer.train_idx])
 users_in_val = set(user_ids[trainer.val_idx])
 
-with open("data/users_in_train.pkl", "wb") as f:
+with open(f"data/seed_{config.misc.seed}_user_ids_in_train.pkl", "wb") as f:
     pickle.dump(users_in_train, f)
-with open("data/users_in_val.pkl", "wb") as f:
+with open(f"data/seed_{config.misc.seed}_user_ids_in_val.pkl", "wb") as f:
     pickle.dump(users_in_val, f)
