@@ -45,7 +45,7 @@ class Trainer:
         self.train_loader = torch.utils.data.DataLoader(self.train_set, batch_size=self.config.training.batch_size, shuffle=True, num_workers=0)
         self.val_loader = torch.utils.data.DataLoader(self.val_set, batch_size=self.config.validation.batch_size, shuffle=False, num_workers=0)
 
-    def train(self, model):
+    def train(self, model, root_folder):
         train_config = self.config.training
 
         # Optimizer
@@ -80,9 +80,9 @@ class Trainer:
         log_text = None
 
         # Make sure output directory exists
-        os.makedirs("checkpoints", exist_ok=True)
-        model_path = os.path.join("checkpoints", f"{self.run_name}.pth")
-        info_path = os.path.join("checkpoints", "best_model_info.txt")
+        os.makedirs(os.path.join(root_folder, "checkpoints"), exist_ok=True)
+        model_path = os.path.join(root_folder, "checkpoints", f"{self.run_name}.pth")
+        info_path = os.path.join(root_folder, "checkpoints", "best_model_info.txt")
         
         with torch.no_grad():
             # Training set metrics
@@ -142,6 +142,10 @@ class Trainer:
 
         model.eval()
         model.to("cpu")
+        if not stopped: # Early stopping never triggered, last version of model gets saved
+            with open(info_path, "a") as f:
+                f.write(f"{self.run_name} | {val_loss:.6f} | {epoch}\n")
+            torch.save(model.state_dict(), model_path)
         return model, train_acc_list, val_acc_list, train_loss_list, val_loss_list
 
     def evaluate(self, model, loss_fn):

@@ -1,6 +1,7 @@
 import itertools
 import yaml
 from pathlib import Path
+import os
 
 # Base config template
 base_config = {
@@ -12,7 +13,7 @@ base_config = {
         "output_size": 2,
         "dropout": 0.75,
     },
-    "training": {"batch_size": 64, "epochs": 600},
+    "training": {"batch_size": 64, "epochs": 300},
     "validation": {"batch_size": 64},
     "optimizer": {"type": "adamW", "lr": 5e-4, "weight_decay": 5e-4},
 }
@@ -26,18 +27,18 @@ model_variants = {
 
 # Parameter grids
 learning_rates = [0.0001, 0.0005, 0.001]
-dropouts = [0.55]
-weight_decays = [0]
+dropouts = [0, 0.55, 0.65, 0.75, 0.85, 0.95]
+weight_decays = [0, 0.0001, 0.0005, 0.001, 0.005]
 
 # Output folder
-out_dir = Path("experiments")
-out_dir.mkdir(exist_ok=True)
+out_dir = Path(os.path.join("gridsearch", "experiments"))
+out_dir.mkdir(exist_ok=True, parents=True)
 
 # Verzeichnis file (index)
-verzeichnis_file = Path("runs.txt")
+verzeichnis_file = Path("gridsearch/runs.txt")
 verzeichnis_lines = []
 
-run_id = 288
+run_id = 0
 seen_configs = set()  # safeguard for duplicates
 
 def save_config(config, run_id, description):
