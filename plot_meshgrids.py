@@ -184,11 +184,10 @@ def plot_meshgrids(heatmap_data, figsize_per_model=(7, 6)):
 
 
 
-def main():
-    """Main function to create validation loss meshgrid plots."""
-    runs = load_runs("runs.txt")
+def main(root_dir):
+    runs = load_runs(os.path.join(root_dir, "runs.txt"))
     run_names = [run['run_id'] for run in runs]
-    validation_data = load_validation_data(run_names)
+    validation_data = load_validation_data(run_names, os.path.join(root_dir, "training_information"))
     
     
     valid_runs = [run for run in runs if validation_data[run['run_id']] != float('inf')]
@@ -204,4 +203,5 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    root_dir = "gridsearch"
+    main(root_dir)

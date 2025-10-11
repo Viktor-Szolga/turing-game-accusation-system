@@ -5,6 +5,8 @@ from matplotlib.ticker import ScalarFormatter
 from itertools import cycle
 import matplotlib.ticker as ticker
 
+root_dir = "gridsearch"
+
 run_names = [
     "run000",
     #"run293"
@@ -28,7 +30,7 @@ for r in run_names:
 val_losses = []
 
 for run in run_names:
-    with open(os.path.join("training_information", f"{run}.pkl"), "rb") as f:
+    with open(os.path.join(root_dir, "training_information", f"{run}.pkl"), "rb") as f:
         data = pickle.load(f)
         val_losses.append(data["validation_loss"])
 

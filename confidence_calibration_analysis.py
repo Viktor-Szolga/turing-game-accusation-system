@@ -11,6 +11,7 @@ import pickle
 from sklearn.metrics import brier_score_loss
 
 N_BINS = 10
+root_dir = "early_stopping"
 run_name = "run039"
 run_name = "run300"
 is_checkpoint = False
@@ -19,24 +20,23 @@ training_information = {}
 print("cuda" if torch.cuda.is_available() else "cpu")
 
 config_name = f"{run_name}.yaml"
-torch.manual_seed(42)
-np.random.seed(42)
-random.seed(42)
 
-default_config = OmegaConf.load(os.path.join("experiments", "default.yaml"))
-specific_config = OmegaConf.load(os.path.join("experiments", config_name))
+default_config = OmegaConf.load(os.path.join(root_dir, "experiments", "default.yaml"))
+specific_config = OmegaConf.load(os.path.join(root_dir, "experiments", config_name))
 config = OmegaConf.merge(default_config, specific_config)
 config.device = "cpu"
 config.name = config_name
-
+torch.manual_seed(config.misc.seed)
+np.random.seed(config.misc.seed)
+random.seed(config.misc.seed)
 # Initialize model and trainer
 trainer = Trainer(config, run_name)
 model = initialize_model(config)
 
 if is_checkpoint:
-    model.load_state_dict(torch.load(f"checkpoints/{run_name}.pth"))
+    model.load_state_dict(torch.load(os.path.join(root_dir, f"checkpoints", f"{run_name}.pth")))
 else:
-    model.load_state_dict(torch.load(f"trained_models/{run_name}.pth"))
+    model.load_state_dict(torch.load(os.path.join(root_dir, f"trained_models", f"{run_name}.pth")))
 model.eval()
 
 def get_bot_probability(h_i, b_i):
@@ -52,8 +52,6 @@ for features, targets in trainer.val_loader:
         probs.append(prob)
         labels.append(int(target.detach().numpy()[0] == 0))  # 1 = bot, 0 = human
 
-# --- BALANCING STEP HERE ---
-# Count how many bot messages exist
 probs = np.array(probs)
 labels = np.array(labels)
 
@@ -73,7 +71,6 @@ labels_bal = labels[balanced_indices]
 
 print(f"Balanced dataset: {len(labels_bal)} samples ({len(bot_indices)} bots + {len(keep_humans)} humans)")
 
-# --- CALIBRATION & METRICS ---
 fraction_of_positives, mean_predicted_value = calibration_curve(
     labels_bal, probs_bal, n_bins=N_BINS, strategy='uniform'
 )

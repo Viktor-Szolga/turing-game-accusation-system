@@ -1,3 +1,6 @@
+# -----------------------------------------------------------------------------------------------------------------------------------------
+# This file is inluded to show how the data was scraped. It was written by Simon Schmid and will not run outside of the Turing Game server.
+# -----------------------------------------------------------------------------------------------------------------------------------------
 import os
 import mysql.connector
 from dotenv import load_dotenv
