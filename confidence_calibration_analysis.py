@@ -11,11 +11,13 @@ import os
 import pickle
 
 N_BINS = 10
-
+run_name = "run001"
+is_checkpoint = False
 
 training_information = {}
 print("cuda" if torch.cuda.is_available() else "cpu")
 config_name = "run082.yaml"
+config_name = f"{run_name}.yaml"
 torch.manual_seed(42)
 np.random.seed(42)
 random.seed(42)
@@ -23,14 +25,17 @@ random.seed(42)
 default_config = OmegaConf.load(os.path.join("experiments", "default.yaml"))
 specific_config = OmegaConf.load(os.path.join("experiments", config_name))
 config = OmegaConf.merge(default_config, specific_config)
-config.device = "cuda" if torch.cuda.is_available() else "cpu"
+config.device = "cpu"
 config.name = config_name
 
 # Initialize model and trainer
-trainer = Trainer(config)
+trainer = Trainer(config, run_name)
 model = initialize_model(config)
 
-model.load_state_dict(torch.load("trained_models/run082.pth"))
+if is_checkpoint:
+    model.load_state_dict(torch.load(f"checkpoints/{run_name}.pth"))
+else:
+    model.load_state_dict(torch.load(f"trained_models/{run_name}.pth"))
 model.eval()
 
 def get_bot_probability(h_i, b_i):

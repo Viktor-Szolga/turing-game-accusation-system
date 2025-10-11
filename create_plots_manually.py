@@ -6,18 +6,18 @@ from itertools import cycle
 import matplotlib.ticker as ticker
 
 run_names = [
-    "run082",
-    "run293"
+    "run000",
+    #"run293"
 ]
 
 legends = [
     "B | lr=0.001 | Dropout=0.85 | Weight decay=0",
-    "Linear | lr=0.001 | Dropout=0 | Weight decay=0"
+    #"Linear | lr=0.001 | Dropout=0 | Weight decay=0"
 ]
 
 model_regularizations = [
     "B",
-    "Linear"
+    #"Linear"
 ]
 
 
