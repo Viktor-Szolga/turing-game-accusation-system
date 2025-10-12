@@ -11,7 +11,7 @@ from sklearn.metrics import brier_score_loss
 
 N_BINS = 10
 root_dir = "early_stopping"
-run_names = ["run069", "run300"] 
+run_names = ["run039", "run300"]
 is_checkpoint = True
 
 def get_bot_probability(h_i, b_i):
