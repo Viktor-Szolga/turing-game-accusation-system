@@ -1,9 +1,10 @@
-
+import sys 
+import os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 import torch
 import numpy as np
 import pickle
 from openai import OpenAI
-import os
 import random
 from tqdm import tqdm
 import matplotlib.pyplot as plt
@@ -45,7 +46,7 @@ for game_id, game_data in chat_data.items():
 
 
 all_words = [word.lower() for message in messages for word in message.split(" ")]
-print(len(all_words))
+print(f"Number of words in dataset: {len(all_words)}")
 most_common_1024 = [s for s, _ in Counter(all_words).most_common(1024)]
 message_encodings = np.zeros((len(messages), 1024))
 for i, message in enumerate(messages):
@@ -59,4 +60,4 @@ with open(os.path.join("data", "BoW_most_common.pkl"), "wb") as f:
 with open(os.path.join("data", "BoW_encodings.pkl"), "wb") as f:
     pickle.dump(message_encodings, f)
     
-print(sum(sum(message_encodings)))
+print(f"Number of words used in the encoding: {sum(sum(message_encodings))}")
