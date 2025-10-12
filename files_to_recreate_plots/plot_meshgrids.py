@@ -1,5 +1,7 @@
-import math
+import sys 
 import os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+import math
 import pickle
 from typing import Optional
 import numpy as np
@@ -146,6 +148,7 @@ def plot_meshgrids(heatmap_data, figsize_per_model=(7, 6)):
             
             
             ax = fig.add_subplot(1, n_models, i, projection='3d')
+            ax.view_init(elev=25, azim=-20)
             axes.append(ax)
             
             

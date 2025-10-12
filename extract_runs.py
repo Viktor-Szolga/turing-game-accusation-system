@@ -34,9 +34,13 @@ def query_runs(
     dropout_max: Optional[float] = None,
     weight_decay_min: Optional[float] = None,
     weight_decay_max: Optional[float] = None,
+    allow_linear: Optional[bool] = False
 ):
     results = []
     for run in runs:
+        if allow_linear is False:
+            if run["model"].lower() == "model l":
+                continue
         # model match
         if model is not None and run["model"].lower() != model.lower():
             continue
@@ -93,13 +97,11 @@ if __name__ == "__main__":
     # Example: Model C with dropout between 0.5 and 0.75, any lr, weight_decay fixed
     res = query_runs(
         runs,
-        model="Model C",
-        lr=0.001,
+        model="Model B",
         #dropout_min=0.65,
         #dropout_max=0.85,
-        dropout=0,
-        weight_decay_min=0.001,
-        weight_decay_max=0.1,
+        dropout=0.85,
+        weight_decay=0
         #weight_decay=0
     )
 

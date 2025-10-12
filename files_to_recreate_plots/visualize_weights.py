@@ -1,7 +1,9 @@
+import sys 
+import os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from src.models import MessageClassifier, LinearClassifier
 from src.utils import visualize_weights
 import torch
-import os
 
 root_folder = "gridsearch"
 

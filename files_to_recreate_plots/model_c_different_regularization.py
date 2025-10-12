@@ -1,5 +1,7 @@
-import pickle
+import sys 
 import os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+import pickle
 import matplotlib.pyplot as plt
 from matplotlib.ticker import ScalarFormatter
 from itertools import cycle
@@ -8,18 +10,33 @@ import matplotlib.ticker as ticker
 root_dir = "gridsearch"
 
 run_names = [
-    "run000",
-    #"run293"
+    "run048",
+    "run095",
+    "run096",
+    "run097",
+    "run049",
+    "run051",
+    "run053",
 ]
 
 legends = [
-    "B | lr=0.001 | Dropout=0.85 | Weight decay=0",
-    #"Linear | lr=0.001 | Dropout=0 | Weight decay=0"
+    "C | lr=0.001 | Dropout=0.0 | Weight decay=0.0",
+    "C | lr=0.001 | Dropout=0.65 | Weight decay=0.0",
+    "C | lr=0.001 | Dropout=0.75 | Weight decay=0.0",
+    "C | lr=0.001 | Dropout=0.85 | Weight decay=0.0",
+    "C | lr=0.001 | Dropout=0.0 | Weight decay=0.1",
+    "C | lr=0.001 | Dropout=0.0 | Weight decay=0.01",
+    "C | lr=0.001 | Dropout=0.0 | Weight decay=0.001",
 ]
 
 model_regularizations = [
-    "B",
-    #"Linear"
+    "no",
+    "dropout",
+    "dropout",
+    "dropout",
+    "wd",
+    "wd",
+    "wd",
 ]
 
 
@@ -35,18 +52,15 @@ for run in run_names:
         val_losses.append(data["validation_loss"])
 
 
-reg_technique_colors = {"A": "tab:blue", "B": "tab:orange", "C": "tab:green", "Linear": "tab:purple"}
+reg_technique_colors = {"no": "tab:blue", "dropout": "tab:orange", "wd": "tab:green", "Linear": "tab:purple"}
 
 
-line_styles = cycle(["-", "--", ":", "-."])
-line_widths = cycle([1, 1.5, 1.5])
+line_styles = ["-", ":", "--", "-", ":", "--", "-"]
+line_widths = [1, 2, 1.5, 1, 2, 1.5, 1]
 alphas = cycle([0.7])
 
-line_styles = ["-", "-."]
-
-
 fig, ax = plt.subplots(figsize=(8, 5))
-fig.suptitle("Linear classifier compared to the best run", y=0.94)
+fig.suptitle("Model C with different regularization applied", y=0.94)
 
 
 for validation_loss, model, legend, ls, lw, alpha in zip(
@@ -55,7 +69,6 @@ for validation_loss, model, legend, ls, lw, alpha in zip(
     ax.plot(validation_loss, label=legend, color=reg_technique_colors[model],
             linestyle=ls, lw=lw, alpha=alpha)
 
-ax.set_title("Linear classifier compared to the best run")
 ax.set_yscale("log")
 ax.yaxis.set_minor_formatter(ticker.ScalarFormatter())
 
