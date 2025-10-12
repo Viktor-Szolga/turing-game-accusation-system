@@ -34,6 +34,7 @@ def classify_model(run_id):
     if config.model.type == "LinearClassifier":
         return "unknown"
     n = len(config.model.hidden_sizes)
+    return n
     if n == 1:
         return "A"
     elif n == 2:
@@ -42,9 +43,10 @@ def classify_model(run_id):
         return "C"
     return "unknown"
 
-df["model"] = df["run_id"].apply(classify_model)
+df = pd.DataFrame(records)
+df["n_hidden"] = df["run_id"].apply(classify_model)
 
-summary = df.groupby("model").agg(
+summary = df.groupby("n_hidden").agg(
     mean_time=("time_s", "mean"),
     std_time=("time_s", "std"),
     median_time=("time_s", "median"),

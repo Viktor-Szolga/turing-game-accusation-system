@@ -1,3 +1,6 @@
+import sys 
+import os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.calibration import calibration_curve
@@ -6,20 +9,18 @@ import random
 from src.utils import initialize_model
 from omegaconf import OmegaConf
 from src.trainer import Trainer
-import os
 from sklearn.metrics import brier_score_loss
 
 N_BINS = 10
 root_dir = "early_stopping"
 run_names = ["run039", "run300"]
+labels = ["Early stopping", "Dropout"]
 is_checkpoint = True
 
 def get_bot_probability(h_i, b_i):
-    """Convert model logits to bot probability."""
     return np.exp(b_i) / (np.exp(h_i) + np.exp(b_i))
 
 def compute_ece(probs, labels, n_bins=N_BINS):
-    """Expected Calibration Error."""
     bin_boundaries = np.linspace(0, 1, n_bins + 1)
     ece = 0
     for bin_lower, bin_upper in zip(bin_boundaries[:-1], bin_boundaries[1:]):
@@ -36,7 +37,7 @@ print("cuda" if torch.cuda.is_available() else "cpu")
 plt.figure(figsize=(8, 8))
 plt.plot([0, 1], [0, 1], 'k--', label='Perfect calibration')
 
-for run_name in run_names:
+for run_name, label in zip(run_names, labels):
     print(f"\n=== Processing {run_name} ===")
 
     config_name = f"{run_name}.yaml"
@@ -86,7 +87,7 @@ for run_name in run_names:
         labels_bal, probs_bal, n_bins=N_BINS, strategy='uniform'
     )
 
-    plt.plot(mean_predicted_value, fraction_of_positives, 's-', label=f'{run_name}')
+    plt.plot(mean_predicted_value, fraction_of_positives, 's-', label=f'{label}')
 
     ece_score = compute_ece(probs_bal, labels_bal)
     brier = brier_score_loss(labels_bal, probs_bal)
