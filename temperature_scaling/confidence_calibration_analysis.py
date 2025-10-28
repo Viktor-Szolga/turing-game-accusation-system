@@ -1,0 +1,112 @@
+import sys 
+import os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+
+import numpy as np
+import matplotlib.pyplot as plt
+from sklearn.calibration import calibration_curve
+import torch
+import random
+from src.utils import initialize_model
+from src.trainer import Trainer
+from src.models import TemperatureScaledMessageClassifier
+from sklearn.metrics import brier_score_loss
+from omegaconf import OmegaConf
+import src.utils as utils
+
+N_BINS = 10
+root_dir = "temperature_scaling"
+run_names = ["temperature_scaled_run009.pth"]
+labels = ["Temperature-scaled model"]
+is_checkpoint = False  # Already saved as scaled model
+
+def get_bot_probability(h_i, b_i):
+    return np.exp(b_i) / (np.exp(h_i) + np.exp(b_i))
+
+def compute_ece(probs, labels, n_bins=N_BINS):
+    bin_boundaries = np.linspace(0, 1, n_bins + 1)
+    ece = 0
+    for bin_lower, bin_upper in zip(bin_boundaries[:-1], bin_boundaries[1:]):
+        in_bin = (probs > bin_lower) & (probs <= bin_upper)
+        prop_in_bin = in_bin.mean()
+        if prop_in_bin > 0:
+            accuracy_in_bin = labels[in_bin].mean()
+            avg_confidence_in_bin = probs[in_bin].mean()
+            ece += np.abs(avg_confidence_in_bin - accuracy_in_bin) * prop_in_bin
+    return ece
+
+plt.figure(figsize=(8, 8))
+plt.plot([0, 1], [0, 1], 'k--', label='Perfect calibration')
+
+for run_name, label in zip(run_names, labels):
+    print(f"\n=== Processing {run_name} ===")
+
+    # Load configs
+    config_name = f"{run_name.replace('.pth', '')}.yaml"
+    default_config = OmegaConf.load(os.path.join("early_stopping", "experiments", "default.yaml"))
+    specific_config = OmegaConf.load(os.path.join("early_stopping", "experiments", config_name[19:]))
+    config = OmegaConf.merge(default_config, specific_config)
+    config.device = "cpu"
+    config.name = config_name
+
+    torch.manual_seed(config.misc.seed)
+    np.random.seed(config.misc.seed)
+    random.seed(config.misc.seed)
+
+    trainer = Trainer(config, config_name.replace('.yaml',''))
+    
+    # Initialize base model
+    base_model = initialize_model(config)
+
+    # Wrap with temperature scaling
+    model = TemperatureScaledMessageClassifier(base_model)
+    
+    # Load the saved temperature-scaled state dict
+    model.load_state_dict(torch.load(os.path.join(root_dir, run_name), map_location=config.device))
+    model.eval()
+
+    # Collect probabilities and labels
+    probs, labels_arr = [], []
+    #loader = trainer.train_loader
+    #loader = utils.get_full_test_data_loader(balanced=True)
+    #loader = utils.get_test_data_loader(os.path.join("data", "test_data", "first"), balanced=True)
+    loader = trainer.val_loader
+    for features, targets in loader:
+        output = model(features.to(config.device)).detach().cpu()  # output already scaled
+        for message, target in zip(output, targets):
+            prob = get_bot_probability(message[0].numpy(), message[1].numpy())
+            probs.append(prob)
+            labels_arr.append(int(target.numpy()[0] == 0))  # 1 = bot, 0 = human
+
+    probs = np.array(probs)
+    labels_arr = np.array(labels_arr)
+
+    # Balance classes
+    bot_indices = np.where(labels_arr == 1)[0]
+    human_indices = np.where(labels_arr == 0)[0]
+    n_bots = len(bot_indices)
+    keep_humans = human_indices[:n_bots]
+    balanced_indices = np.sort(np.concatenate([bot_indices, keep_humans]))
+    probs_bal = probs[balanced_indices]
+    labels_bal = labels_arr[balanced_indices]
+
+    print(f"Balanced dataset: {len(labels_bal)} samples ({len(bot_indices)} bots + {len(keep_humans)} humans)")
+
+    fraction_of_positives, mean_predicted_value = calibration_curve(
+        labels_bal, probs_bal, n_bins=N_BINS, strategy='uniform'
+    )
+
+    plt.plot(mean_predicted_value, fraction_of_positives, 's-', label=f'{label}')
+
+    ece_score = compute_ece(probs_bal, labels_bal)
+    brier = brier_score_loss(labels_bal, probs_bal)
+    print(f"ECE: {ece_score:.4f}")
+    print(f"Brier Score: {brier:.4f}")
+
+plt.xlabel('Mean predicted probability')
+plt.ylabel('Fraction of positives (actual)')
+plt.title('Reliability Diagram (Balanced)')
+plt.legend()
+plt.grid(True)
+plt.tight_layout()
+plt.show()

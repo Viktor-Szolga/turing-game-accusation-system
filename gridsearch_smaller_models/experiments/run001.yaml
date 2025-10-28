@@ -1,0 +1,19 @@
+data:
+  split_by: userID
+model:
+  type: MessageClassifier
+  input_size: 1024
+  hidden_sizes:
+  - 1
+  output_size: 2
+  dropout: 0
+training:
+  batch_size: 64
+  epochs: 300
+  label_smoothing: 0.1
+validation:
+  batch_size: 64
+optimizer:
+  type: adamW
+  lr: 0.0001
+  weight_decay: 0
