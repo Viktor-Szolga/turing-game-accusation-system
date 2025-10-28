@@ -21,18 +21,18 @@ base_config = {
 
 seeds = list(range(1, 11))
 # Output folder
-out_dir = Path(os.path.join("early_stopping_fixed_epoch", "experiments"))
+out_dir = Path(os.path.join("early_stopping_fixed_epoch_bow", "experiments"))
 out_dir.mkdir(exist_ok=True, parents=True)
 
 stop_ats = [
-    69, 35, 22, 23, 16, 14, 11, 6, 7, 7,
-    72, 49, 26, 20, 11, 8, 6, 4, 3, 2,
-    64, 48, 42, 33, 14, 12, 5, 3, 3, 2
+    70, 44, 19, 13, 10, 9, 6, 5, 5, 4,
+    47, 51, 24, 17, 10, 8, 4, 3, 3, 2,
+    89, 54, 39, 38, 15, 10, 6, 4, 1, 2
 ]*len(seeds)
 
 
 # Directory file (index)
-verzeichnis_file = Path(os.path.join("early_stopping_fixed_epoch", "runs.txt"))
+verzeichnis_file = Path(os.path.join("early_stopping_fixed_epoch_bow", "runs.txt"))
 verzeichnis_lines = []
 
 run_id = 0

@@ -9,7 +9,7 @@ import time
 import pickle
 
 if __name__ == "__main__":
-    root_folder = "early_stopping_fixed_num_steps"  # "early_stopping" or "gridsearch"
+    root_folder = "early_stopping_fixed_epoch_bow"  # "early_stopping" or "gridsearch"
     os.makedirs(os.path.join(root_folder, "training_information"), exist_ok=True)
     os.makedirs(os.path.join(root_folder, "trained_models"), exist_ok=True)
     os.makedirs(os.path.join(root_folder, "checkpoints"), exist_ok=True)

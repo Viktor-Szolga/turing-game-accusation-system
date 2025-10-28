@@ -1,4 +1,4 @@
-from src.utils import load_data, load_pre_embedded
+from src.utils import load_data, load_pre_embedded, encode_to_bow
 from sklearn.model_selection import GroupShuffleSplit
 import torch
 import numpy as np
@@ -14,10 +14,16 @@ class Trainer:
         self.device = self.config.device
         self.run_name = run_name
 
-        # Load data
-        self.messages, self.labels, self.game_ids = load_data(self.config.data.pickle)
-        self.message_encodings, self.labels, self.game_ids = load_pre_embedded(self.config.data.folder)
-        self.labels = np.array(self.labels)
+        use_bow = getattr(self.config.data, "bow", False)
+        if use_bow:
+            self.messages, self.labels, self.game_ids = load_data(self.config.data.pickle)
+            self.message_encodings = encode_to_bow(self.messages)
+            self.labels = np.array(self.labels)
+        else:
+            # Load data
+            self.messages, self.labels, self.game_ids = load_data(self.config.data.pickle)
+            self.message_encodings, self.labels, self.game_ids = load_pre_embedded(self.config.data.folder)
+            self.labels = np.array(self.labels)
 
         # Fix labels [0,2] -> [0,1]
         for i, label in enumerate(self.labels):
