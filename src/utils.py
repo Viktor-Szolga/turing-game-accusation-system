@@ -160,3 +160,54 @@ def visualize_weights(model):
         plt.xlabel("Input units")
         plt.ylabel("Output units")
         plt.show()
+
+
+def get_test_data_loader(load_path, balanced=False):
+    message_encodings, labels, game_ids = load_pre_embedded(load_path)
+    message_encodings = np.array(message_encodings)
+    labels = np.array(labels)
+    for i, label in enumerate(labels):
+        if labels[i][1] != 0:
+            labels[i] = [0, 1]
+
+    if balanced:
+        bot_indices = np.where(labels == 1)[0]
+        human_indices = np.where(labels == 0)[0]
+        n_bots = len(bot_indices)
+        np.random.shuffle(human_indices)
+        keep_humans = human_indices[:n_bots]
+        balanced_indices = np.sort(np.concatenate([bot_indices, keep_humans]))
+        message_encodings = message_encodings[balanced_indices]
+        labels = labels[balanced_indices]
+
+    X_val = torch.tensor(np.array(message_encodings), dtype=torch.float32)
+    y_val = torch.tensor(np.array(labels), dtype=torch.float32)
+    val_set = torch.utils.data.TensorDataset(X_val, y_val)
+    val_loader = torch.utils.data.DataLoader(val_set, batch_size=64, shuffle=False, num_workers=0)
+    return val_loader
+
+def get_full_test_data_loader(balanced=False):
+    message_encodings, labels, game_ids = load_pre_embedded(os.path.join("data", "test_data", "first"))
+    message_encodings2, labels2, game_ids = load_pre_embedded(os.path.join("data", "test_data", "second"))
+    message_encodings += message_encodings2
+    labels += labels2
+    message_encodings = np.array(message_encodings)
+    labels = np.array(labels)
+    for i, label in enumerate(labels):
+        if labels[i][1] != 0:
+            labels[i] = [0, 1]
+
+    if balanced:
+        bot_indices = np.where(labels == 1)[0]
+        human_indices = np.where(labels == 0)[0]
+        n_bots = len(bot_indices)
+        np.random.shuffle(human_indices)
+        keep_humans = human_indices[:n_bots]
+        balanced_indices = np.sort(np.concatenate([bot_indices, keep_humans]))
+        message_encodings = message_encodings[balanced_indices]
+        labels = labels[balanced_indices]
+    X_val = torch.tensor(np.array(message_encodings), dtype=torch.float32)
+    y_val = torch.tensor(np.array(labels), dtype=torch.float32)
+    val_set = torch.utils.data.TensorDataset(X_val, y_val)
+    val_loader = torch.utils.data.DataLoader(val_set, batch_size=64, shuffle=False, num_workers=0)
+    return val_loader

@@ -6,7 +6,8 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import numpy as np
 
-root_dir = "early_stopping"
+root_dir = "early_stopping_fixed_epoch"
+#root_dir = "early_stopping_fixed_epoch"
 
 stats = pd.read_csv(os.path.join(root_dir, "architecture_loss_summary.csv"))
 
@@ -15,7 +16,7 @@ stats = stats.sort_values(by='mean_loss', ascending=True).reset_index(drop=True)
 
 sns.set(style="whitegrid")
 
-highlight_arch = "2-layer | 48-24 neurons"
+highlight_arch = "2-layer | 48-24"
 colors = ['orange' if arch == highlight_arch else 'skyblue' for arch in stats['architecture']]
 
 plt.figure(figsize=(12, 6))

@@ -7,8 +7,8 @@ from src.trainer import Trainer
 import os
 import pickle
 
-root_dir = "early_stopping"
-config_name = "run039.yaml"
+root_dir = "early_stopping_fixed_epoch"
+config_name = "run127.yaml"
 training_information = {}
 print("cuda" if torch.cuda.is_available() else "cpu")
 
