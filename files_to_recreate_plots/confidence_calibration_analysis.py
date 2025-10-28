@@ -13,7 +13,7 @@ from sklearn.metrics import brier_score_loss
 import src.utils as utils
 
 N_BINS = 10
-root_dir = "early_stopping_fixed_epoch"
+root_dir = "early_stopping_fixed_epoch_bow"
 #root_dir = "early_stopping_fixed_num_steps"
 run_names = ["run127", "run138", "run147", "run304"]
 labels = ["1-Layer 256-Neurons", "2-Layer 256-128-Neurons", "3-Layer 128-64-32", "2-Layer 48-24"]

@@ -4,6 +4,7 @@ import os
 from tqdm import tqdm
 import torch
 import torchmetrics
+from collections import Counter
 from src.models import MessageClassifier, LinearClassifier
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -211,3 +212,17 @@ def get_full_test_data_loader(balanced=False):
     val_set = torch.utils.data.TensorDataset(X_val, y_val)
     val_loader = torch.utils.data.DataLoader(val_set, batch_size=64, shuffle=False, num_workers=0)
     return val_loader
+
+
+def encode_to_bow(messages):
+    all_words = [word.lower() for message in messages for word in message.split(" ")]
+    print(f"Number of words in dataset: {len(all_words)}")
+    most_common_1024 = [s for s, _ in Counter(all_words).most_common(1024)]
+    message_encodings = np.zeros((len(messages), 1024))
+    for i, message in enumerate(messages):
+        for word in message.split(" "):
+            if word.lower() in most_common_1024:
+                index = most_common_1024.index(word.lower())
+                message_encodings[i][index] += 1
+
+    return message_encodings
