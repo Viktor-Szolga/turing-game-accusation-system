@@ -71,7 +71,7 @@ for run_name, label in zip(run_names, labels):
     probs, labels = [], []
     #loader = utils.get_full_test_data_loader()
     #loader = trainer.train_loader
-    loader = trainer.val_loader
+    loader = trainer.calibration_eval_loader
     for features, targets in loader:
         output = model(features).to(config.device)
         for message, target in zip(output, targets):

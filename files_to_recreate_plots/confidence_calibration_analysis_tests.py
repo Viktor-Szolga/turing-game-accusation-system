@@ -66,7 +66,7 @@ for run_name, label, color in zip(run_names, labels, colors):
     probs, labels = [], []
     #loader = trainer.val_loader
     #loader = utils.get_test_data_loader(os.path.join("data", "test_data", "first"))
-    loader = utils.get_full_test_data_loader()
+    loader = trainer.calibration_eval_loader
     for features, targets in loader:
         output = model(features).to(config.device)
         for message, target in zip(output, targets):

@@ -70,7 +70,7 @@ for ax, (model_label, run_names) in zip(axes, model_runs.items()):
 
         # Collect probabilities and labels
         probs, labels_arr = [], []
-        for features, targets in trainer.train_loader:
+        for features, targets in trainer.calibration_eval_loader:
             output = model(features).to(config.device)
             for message, target in zip(output, targets):
                 prob = get_bot_probability(message[0].detach().numpy(), message[1].detach().numpy())
