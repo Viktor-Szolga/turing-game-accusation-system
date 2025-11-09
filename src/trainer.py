@@ -51,6 +51,19 @@ class Trainer:
         self.train_loader = torch.utils.data.DataLoader(self.train_set, batch_size=self.config.training.batch_size, shuffle=True, num_workers=0)
         self.val_loader = torch.utils.data.DataLoader(self.val_set, batch_size=self.config.validation.batch_size, shuffle=False, num_workers=0)
 
+        # Prepare calibration data
+        self.split_val_data()
+        self.X_calibration = torch.tensor(np.array([self.message_encodings[i] for i in self.calibration_idx]), dtype=torch.float32, device=self.device)
+        self.y_calibration = torch.tensor(np.array([self.labels[i] for i in self.calibration_idx]), dtype=torch.float32, device=self.device)
+        self.X_calibration_eval = torch.tensor(np.array([self.message_encodings[i] for i in self.calibration_eval_idx]), dtype=torch.float32, device=self.device)
+        self.y_calibration_eval = torch.tensor(np.array([self.labels[i] for i in self.calibration_eval_idx]), dtype=torch.float32, device=self.device)
+
+        self.calibration_set = torch.utils.data.TensorDataset(self.X_calibration, self.y_calibration)
+        self.calibration_eval_set = torch.utils.data.TensorDataset(self.X_calibration_eval, self.y_calibration_eval)
+        self.calibration_loader = torch.utils.data.DataLoader(self.calibration_set, batch_size=self.config.training.batch_size, shuffle=True, num_workers=0)
+        self.calibration_eval_loader = torch.utils.data.DataLoader(self.calibration_eval_set, batch_size=self.config.validation.batch_size, shuffle=False, num_workers=0)
+
+
     def train(self, model, root_folder):
         train_config = self.config.training
         stop_at = getattr(train_config, "stop_at", None)
@@ -345,3 +358,13 @@ class Trainer:
 
         model.train()
         return accuracy.compute(), val_loss / len(self.val_loader)
+    
+    def split_val_data(self):
+        message_encodings = np.array(self.message_encodings)
+        labels = np.array(self.labels)
+        game_ids = np.array(self.game_ids)
+        gss = GroupShuffleSplit(n_splits=1, test_size=0.5, random_state=42)
+        cal_idx_local, cal_eval_idx_local = next(gss.split(message_encodings[self.val_idx], labels[self.val_idx], game_ids[self.val_idx]))
+
+        self.calibration_idx = self.val_idx[cal_idx_local]
+        self.calibration_eval_idx = self.val_idx[cal_eval_idx_local]

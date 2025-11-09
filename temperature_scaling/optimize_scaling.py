@@ -49,8 +49,8 @@ def set_temperature(scaled_model, valid_loader, device='cpu'):
 
 
 if __name__ == "__main__":
-    root_folder = "early_stopping_fixed_num_steps"
-    config_name = "run039.yaml"
+    root_folder = "early_stopping_fixed_epoch"
+    config_name = "run009.yaml"
     is_checkpoint = False
     
     # Load configs
@@ -82,11 +82,11 @@ if __name__ == "__main__":
     # Optimize temperature on validation set
     epochs = 3
     #loader = utils.get_test_data_loader(os.path.join("data", "test_data", "first"), balanced=True)
-    loader = trainer.val_loader
+    loader = trainer.calibration_loader
     for _ in range(epochs):
         scaled_model = set_temperature(scaled_model, loader, device=config.device)
     
     # Save the temperature-scaled model
     os.makedirs("temperature_scaling", exist_ok=True)
-    torch.save(scaled_model.state_dict(), "temperature_scaling/temperature_scaled_run039.pth")
+    torch.save(scaled_model.state_dict(), f"temperature_scaling/temperature_scaled_{config_name[:-5]}.pth")
     print("Saved temperature-scaled model!")

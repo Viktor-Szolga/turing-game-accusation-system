@@ -80,7 +80,7 @@ for ax, (model_label, run_names) in zip(axes, model_runs.items()):
         # Collect probabilities and labels
         #loader = trainer.train_loader
         #loader = utils.get_full_test_data_loader()
-        loader = trainer.val_loader
+        loader = trainer.calibration_eval_loader
         #loader = utils.get_test_data_loader(os.path.join("data", "test_data", "first"))
         probs, labels_arr = [], []
         for features, targets in loader:
