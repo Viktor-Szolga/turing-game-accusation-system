@@ -7,7 +7,7 @@ import seaborn as sns
 import numpy as np
 
 root_dir = "early_stopping_fixed_epoch_bow"
-#root_dir = "early_stopping_fixed_epoch"
+root_dir = "early_stopping_fixed_epoch"
 
 stats = pd.read_csv(os.path.join(root_dir, "architecture_loss_summary.csv"))
 
@@ -43,6 +43,6 @@ for i, row in stats.iterrows():
 
 plt.xticks(rotation=45, ha='right')
 plt.ylabel("Mean Validation Loss")
-plt.title("Mean Loss per Architecture with 95% Confidence Interval (BoW)")
+plt.title("Mean Loss per Architecture with 95% Confidence Interval")
 plt.tight_layout()
 plt.show()

@@ -1,3 +1,6 @@
+import sys 
+import os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 import itertools
 import yaml
 from pathlib import Path
@@ -13,7 +16,7 @@ base_config = {
         "output_size": 2,
         "dropout": 0.0,  # no dropout
     },
-    "training": {"batch_size": 64, "epochs": 600, "early_stopping_patience": 10, "continue_training": False, "stop_at":None},
+    "training": {"batch_size": 64, "epochs": 600, "early_stopping_patience": 10, "continue_training": False},
     "validation": {"batch_size": 64},
     "optimizer": {"type": "adamW", "lr": 0.0001, "weight_decay": 0.0},  # low LR, no weight decay
     "misc": {"seed": 42}
@@ -21,18 +24,11 @@ base_config = {
 
 seeds = list(range(1, 11))
 # Output folder
-out_dir = Path(os.path.join("early_stopping_fixed_epoch_bow", "experiments"))
+out_dir = Path(os.path.join("early_stopping", "experiments"))
 out_dir.mkdir(exist_ok=True, parents=True)
 
-stop_ats = [
-    70, 44, 19, 13, 10, 9, 6, 5, 5, 4,
-    47, 51, 24, 17, 10, 8, 4, 3, 3, 2,
-    89, 54, 39, 38, 15, 10, 6, 4, 1, 2
-]*len(seeds)
-
-
 # Directory file (index)
-verzeichnis_file = Path(os.path.join("early_stopping_fixed_epoch_bow", "runs.txt"))
+verzeichnis_file = Path(os.path.join("early_stopping", "runs.txt"))
 verzeichnis_lines = []
 
 run_id = 0
@@ -56,7 +52,6 @@ for seed in seeds:
         cfg["misc"]["seed"] = seed
         cfg["model"] = cfg["model"].copy()
         cfg["model"]["hidden_sizes"] = hidden_sizes
-        cfg["training"]["stop_at"] = stop_ats[run_id]
         desc = f"seed:{seed} | 1-layer | {hidden_sizes[0]} neurons"
         cfg_str = yaml.dump(cfg, sort_keys=True)
         if cfg_str not in seen_configs:
@@ -73,7 +68,6 @@ for seed in seeds:
         cfg = base_config.copy()
         cfg["model"] = cfg["model"].copy()
         cfg["model"]["hidden_sizes"] = hidden_sizes
-        cfg["training"]["stop_at"] = stop_ats[run_id]
         desc = f"seed:{seed} | 2-layer | {hidden_sizes[0]}-{hidden_sizes[1]} neurons"
         cfg_str = yaml.dump(cfg, sort_keys=True)
         if cfg_str not in seen_configs:
@@ -91,7 +85,6 @@ for seed in seeds:
         cfg = base_config.copy()
         cfg["model"] = cfg["model"].copy()
         cfg["model"]["hidden_sizes"] = hidden_sizes
-        cfg["training"]["stop_at"] = stop_ats[run_id]
         desc = f"seed:{seed} | 3-layer | {hidden_sizes[0]}-{hidden_sizes[1]}-{hidden_sizes[2]} neurons"
         cfg_str = yaml.dump(cfg, sort_keys=True)
         if cfg_str not in seen_configs:

@@ -33,7 +33,7 @@ with open("data/user_ids.pkl", "rb") as f:
 users_in_train = set(user_ids[trainer.train_idx])
 users_in_val = set(user_ids[trainer.val_idx])
 
-with open(f"data/seed_{config.misc.seed}_user_ids_in_train.pkl", "wb") as f:
+with open(f"data/user_ids_in_train.pkl", "wb") as f:
     pickle.dump(users_in_train, f)
-with open(f"data/seed_{config.misc.seed}_user_ids_in_val.pkl", "wb") as f:
+with open(f"data/user_ids_in_val.pkl", "wb") as f:
     pickle.dump(users_in_val, f)

@@ -33,27 +33,15 @@ loss_info["loss"] = loss_info["loss"].str.extract(r"([\d\.eE+-]+)$").astype(floa
 # === Merge ===
 merged = pd.merge(run_info, loss_info, left_on="run_id", right_on="name", how="left")
 
-# === Compute mean per architecture ===
-mean_loss = (
-    merged.groupby(["n_layers", "n_neurons"])["loss"]
-    .mean()
-    .reset_index()
-    .rename(columns={"loss": "mean_loss"})
-)
-
-merged = pd.merge(merged, mean_loss,
-                  on=["n_layers", "n_neurons"], how="left")
-
-# === Compute distance to mean ===
-merged["dist_to_mean"] = (merged["loss"] - merged["mean_loss"]).abs()
-
-# === Select model closest to mean per architecture ===
-closest_models = merged.loc[
-    merged.groupby(["n_layers", "n_neurons"])["dist_to_mean"].idxmin(),
-    ["run_id", "seed", "n_layers", "n_neurons", "loss", "mean_loss"]
+# === Find the model with the lowest loss per architecture ===
+best_models = merged.loc[
+    merged.groupby(["n_layers", "n_neurons"])["loss"].idxmin(),
+    ["run_id", "seed", "n_layers", "n_neurons", "loss"]
 ]
 
-closest_models = closest_models.sort_values(by="mean_loss", ascending=True)
+# === Sort by loss ===
+best_models = best_models.sort_values(by="loss", ascending=True)
+
 # === Print results ===
-print("\n📌 Model Closest to Mean Loss per Architecture:\n")
-print(closest_models.to_string(index=False))
+print("\n🏆 Model with Lowest Loss per Architecture:\n")
+print(best_models.to_string(index=False))

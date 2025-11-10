@@ -16,8 +16,8 @@ import src.utils as utils
 
 N_BINS = 10
 root_dir = "temperature_scaling"
-run_names = ["temperature_scaled_run009.pth"]
-labels = ["Temperature-scaled model"]
+run_names = ["run098.pth", "temperature_scaled_run098.pth", "run304.pth", "temperature_scaled_run304.pth"]
+labels = ["Unscaled Model D", "Scaled Model D", "Unscaled Model B", "Scaled Model B"]
 is_checkpoint = False  # Already saved as scaled model
 
 def get_bot_probability(h_i, b_i):
@@ -43,8 +43,8 @@ for run_name, label in zip(run_names, labels):
 
     # Load configs
     config_name = f"{run_name.replace('.pth', '')}.yaml"
-    default_config = OmegaConf.load(os.path.join("early_stopping", "experiments", "default.yaml"))
-    specific_config = OmegaConf.load(os.path.join("early_stopping", "experiments", config_name[19:]))
+    default_config = OmegaConf.load(os.path.join("early_stopping_fixed_epoch", "experiments", "default.yaml"))
+    specific_config = OmegaConf.load(os.path.join("early_stopping_fixed_epoch", "experiments", config_name[19:] if len(config_name) > 19 else config_name))
     config = OmegaConf.merge(default_config, specific_config)
     config.device = "cpu"
     config.name = config_name
@@ -55,11 +55,11 @@ for run_name, label in zip(run_names, labels):
 
     trainer = Trainer(config, config_name.replace('.yaml',''))
     
-    # Initialize base model
-    base_model = initialize_model(config)
-
-    # Wrap with temperature scaling
-    model = TemperatureScaledMessageClassifier(base_model)
+    if len(config_name) > 19:
+        base_model = initialize_model(config)
+        model = TemperatureScaledMessageClassifier(base_model)
+    else:
+        model = initialize_model(config)
     
     # Load the saved temperature-scaled state dict
     model.load_state_dict(torch.load(os.path.join(root_dir, run_name), map_location=config.device))
