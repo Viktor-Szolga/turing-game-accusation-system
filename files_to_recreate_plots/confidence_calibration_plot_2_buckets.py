@@ -13,8 +13,8 @@ from sklearn.metrics import brier_score_loss
 import src.utils as utils
 
 root_dir = "early_stopping_fixed_epoch"
-run_names = ["run127", "run138", "run147", "run304"]
-labels = ["1-Layer 128-Neurons", "2-Layer 256-128-Neurons", "3-Layer 128-64-32", "2-Layer 48-24"]
+run_names = ["run098", "run108", "run027", "run304"]
+labels = ["1-Layer 256-Neurons", "2-Layer 256-128-Neurons", "3-Layer 128-64-32", "2-Layer 48-24"]
 is_checkpoint = False
 bin_settings = [10, 50]  # Two bin sizes
 
@@ -69,7 +69,7 @@ for ax, n_bins in zip(axes, bin_settings):
         model.eval()
 
         probs, labels_list = [], []
-        loader = trainer.val_loader
+        loader = trainer.calibration_eval_loader
         for features, targets in loader:
             output = model(features).to(config.device)
             for message, target in zip(output, targets):
@@ -86,7 +86,6 @@ for ax, n_bins in zip(axes, bin_settings):
         human_indices = np.where(labels_array == 0)[0]
         np.random.seed(config.misc.seed)
         n_bots = len(bot_indices)
-        np.random.shuffle(human_indices)
         keep_humans = human_indices[:n_bots]
         balanced_indices = np.sort(np.concatenate([bot_indices, keep_humans]))
         probs_bal = probs[balanced_indices]
@@ -97,15 +96,12 @@ for ax, n_bins in zip(axes, bin_settings):
         print(f"Balanced dataset: {len(labels_bal)} samples ({len(bot_indices)} bots + {len(keep_humans)} humans)")
 
         fraction_of_positives, mean_predicted_value = calibration_curve(
-            labels_bal, probs_bal, n_bins=n_bins, strategy='quantile'
+            labels_bal, probs_bal, n_bins=n_bins, strategy='uniform'
         )
 
         ax.plot(mean_predicted_value, fraction_of_positives,
                 linestyle='-',
                 linewidth=2,
-                marker='o',
-                markersize=5,
-                markevery=3,
                 alpha=0.85,
                 label=label)
 

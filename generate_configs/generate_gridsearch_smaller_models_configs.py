@@ -1,3 +1,6 @@
+import sys 
+import os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 import itertools
 import yaml
 from pathlib import Path
