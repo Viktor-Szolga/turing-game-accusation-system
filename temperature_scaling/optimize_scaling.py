@@ -50,7 +50,7 @@ def set_temperature(scaled_model, valid_loader, device='cpu'):
 
 if __name__ == "__main__":
     root_folder = "early_stopping_fixed_epoch"
-    config_name = "run304.yaml" # or run098.yaml
+    config_name = "run304.yaml" # or run097.yaml
     is_checkpoint = False
     
     # Load configs

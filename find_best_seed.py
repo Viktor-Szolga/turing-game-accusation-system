@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 import os
 
-root_dir = "early_stopping_fixed_epoch"  # <-- update if needed
+root_dir = "early_stopping_fixed_epoch_average"
 
 # === Read run info ===
 run_info = pd.read_csv(

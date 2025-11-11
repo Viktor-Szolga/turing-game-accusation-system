@@ -12,8 +12,8 @@ from src.trainer import Trainer
 from sklearn.metrics import brier_score_loss
 import src.utils as utils
 
-root_dir = "early_stopping_fixed_epoch"
-run_names = ["run098", "run108", "run027", "run304"]
+root_dir = "final_candidates"
+run_names = ["run097", "run108", "run027", "run304"]
 labels = ["1-Layer 256-Neurons", "2-Layer 256-128-Neurons", "3-Layer 128-64-32", "2-Layer 48-24"]
 is_checkpoint = False
 bin_settings = [10, 50]  # Two bin sizes
