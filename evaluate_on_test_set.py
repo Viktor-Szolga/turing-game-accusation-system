@@ -114,7 +114,7 @@ for ax, N_BINS in zip(axes, bins_list):
         # Collect probabilities and labels
         probs, labels_arr = [], []
         loader = utils.get_full_test_data_loader()
-        #loader = trainer.val_loader   # Used to report validation performance of final model
+        #loader = trainer.calibration_eval_loader   # Used to report validation performance of final model
         for features, targets in loader:
             output = model(features.to(config.device)).detach().cpu()
             for message, target in zip(output, targets):
