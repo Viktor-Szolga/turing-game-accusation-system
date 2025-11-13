@@ -149,6 +149,7 @@ def plot_meshgrids(heatmap_data, figsize_per_model=(7, 6)):
             
             ax = fig.add_subplot(1, n_models, i, projection='3d')
             ax.view_init(elev=25, azim=-20)
+            ax.view_init(elev=30, azim=-160)
             axes.append(ax)
             
             
