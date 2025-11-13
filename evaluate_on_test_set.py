@@ -17,30 +17,53 @@ import src.utils as utils
 
 root_dir = "final_model"
 run_names = ["scaled_model_d.pth"]
+#run_names = ["model_d.pth"]
 labels = ["Model D"]
 styles = ['-']
 colors = ['C0']
 alpha = 0.5  # Slight transparency
 
-def get_test_loss(model, loader, class_weights=None, device='cpu'):
+
+def get_test_metrics(model, loader, device='cpu'):
+    """Compute loss, accuracy, precision, recall, F1 (per class)."""
     model.eval()
     loss_fn = torch.nn.CrossEntropyLoss()
-    accuracy = torchmetrics.Accuracy(num_classes=2, task="binary").to(device)
-    total_loss = 0
+    
+    # Use multiclass mode to get per-class metrics
+    accuracy = torchmetrics.Accuracy(num_classes=2, task="multiclass").to(device)
+    precision = torchmetrics.Precision(num_classes=2, task="multiclass", average=None).to(device)
+    recall = torchmetrics.Recall(num_classes=2, task="multiclass", average=None).to(device)
+    f1 = torchmetrics.F1Score(num_classes=2, task="multiclass", average=None).to(device)
+
+    total_loss = 0.0
 
     with torch.no_grad():
         for features, targets in loader:
             features, targets = features.to(device), targets.to(device)
             targets = torch.argmax(targets, dim=1)
             outputs = model(features)
+            preds = torch.argmax(outputs, dim=1)
+
             total_loss += loss_fn(outputs, targets).item()
-            accuracy.update(torch.argmax(outputs, dim=1), targets)
+            accuracy.update(preds, targets)
+            precision.update(preds, targets)
+            recall.update(preds, targets)
+            f1.update(preds, targets)
+
+    loss = total_loss / len(loader)
+    acc = accuracy.compute().item()
+    prec = precision.compute().cpu().numpy()
+    rec = recall.compute().cpu().numpy()
+    f1s = f1.compute().cpu().numpy()
 
     model.train()
-    return total_loss / len(loader), accuracy.compute().item()
+    return loss, acc, prec, rec, f1s
+
+
 
 def get_bot_probability(h_i, b_i):
     return np.exp(b_i) / (np.exp(h_i) + np.exp(b_i))
+
 
 def compute_ece(probs, labels, n_bins=10):
     bin_boundaries = np.linspace(0, 1, n_bins + 1)
@@ -53,6 +76,7 @@ def compute_ece(probs, labels, n_bins=10):
             avg_confidence_in_bin = probs[in_bin].mean()
             ece += np.abs(avg_confidence_in_bin - accuracy_in_bin) * prop_in_bin
     return ece
+
 
 fig, axes = plt.subplots(1, 2, figsize=(16, 7))
 bins_list = [10, 50]
@@ -79,17 +103,18 @@ for ax, N_BINS in zip(axes, bins_list):
         random.seed(config.misc.seed)
 
         trainer = Trainer(config, config_name.replace('.yaml',''))
-
         base_model = initialize_model(config)
         model = TemperatureScaledMessageClassifier(base_model)
-    
-        # Load the saved temperature-scaled state dict
+        #model = initialize_model(config)
+
+        # Load model
         model.load_state_dict(torch.load(os.path.join(root_dir, run_name), map_location=config.device))
         model.eval()
 
         # Collect probabilities and labels
         probs, labels_arr = [], []
         loader = utils.get_full_test_data_loader()
+        #loader = trainer.val_loader   # Used to report validation performance of final model
         for features, targets in loader:
             output = model(features.to(config.device)).detach().cpu()
             for message, target in zip(output, targets):
@@ -100,7 +125,7 @@ for ax, N_BINS in zip(axes, bins_list):
         probs = np.array(probs)
         labels_arr = np.array(labels_arr)
 
-        # Balance classes
+        # Balance classes for calibration
         bot_indices = np.where(labels_arr == 1)[0]
         human_indices = np.where(labels_arr == 0)[0]
         n_bots = len(bot_indices)
@@ -124,9 +149,13 @@ for ax, N_BINS in zip(axes, bins_list):
         print(f"ECE (bins={N_BINS}): {ece_score:.4f}")
         print(f"Brier Score: {brier:.4f}")
 
-        loss, acc = get_test_loss(model, loader, trainer.get_class_weights())
-        print(f"Test loss: {loss}")
-        print(f"Test accuracy: {acc}")
+        # Get test metrics
+        loss, acc, prec, rec, f1s = get_test_metrics(model, loader)
+        print(f"Test Loss: {loss:.4f}")
+        print(f"Test Accuracy: {acc*100:.2f}%")
+        print("Per-Class Metrics:")
+        print(f"  Class 0 (Human):   Precision={prec[0]:.4f}, Recall={rec[0]:.4f}, F1={f1s[0]:.4f}")
+        print(f"  Class 1 (Bot):     Precision={prec[1]:.4f}, Recall={rec[1]:.4f}, F1={f1s[1]:.4f}")
 
     ax.set_xlabel('Mean predicted probability')
     ax.set_ylabel('Fraction of positives')
