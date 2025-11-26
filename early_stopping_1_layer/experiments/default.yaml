@@ -1,0 +1,32 @@
+data:
+  folder: data
+  pickle: data/190325_data.pkl
+  test_size: 0.33
+  split_by: gameID
+
+model:
+  type: MessageClassifier
+  input_size: 1024
+  hidden_sizes:
+  - 48
+  - 24
+  output_size: 2
+  dropout: 0
+
+training:
+  batch_size: 64
+  loss_fn: cross_entropy
+  epochs: 100
+  label_smoothing: 0.05
+  early_stopping_patience: 10
+
+validation:
+  batch_size: 64
+
+optimizer:
+  type: adamW
+  lr: 0.001
+  weight_decay: 0
+
+misc:
+  seed: 42

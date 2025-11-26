@@ -45,7 +45,7 @@ def save_config(config, run_id, description):
     fname = out_dir / f"run{run_id:03d}.yaml"
     with open(fname, "w") as f:
         yaml.dump(config, f, sort_keys=False)
-    verzeichnis_lines.append(f"{fname.name}: {description}")
+    verzeichnis_lines.append(f"{fname.name} | {description}")
 
 # Generate configs (with safeguard)
 for model_name, hidden_sizes in model_variants.items():
