@@ -15,7 +15,7 @@ stats = stats.sort_values(by='mean_loss', ascending=True).reset_index(drop=True)
 
 sns.set(style="whitegrid")
 
-highlight_arch = "2-layer | 48-24 neurons"
+highlight_arch = "2-layer | 48-24"
 colors = ['orange' if arch == highlight_arch else 'skyblue' for arch in stats['architecture']]
 
 plt.figure(figsize=(12, 6))

@@ -1,11 +1,10 @@
 import sys 
 import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
-from src.utils import plot_curves_on_ax
+from src.utils import plot_curves_on_ax, load_runs, query_runs
 import pickle
 import matplotlib.pyplot as plt
 from itertools import cycle
-from extract_runs import load_runs, query_runs
 import matplotlib.ticker as ticker
 
 root_dir = os.path.join("gridsearch")

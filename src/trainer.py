@@ -1,4 +1,4 @@
-from src.utils import load_data, load_pre_embedded
+from src.utils import load_data, load_pre_embedded, encode_to_bow
 from sklearn.model_selection import GroupShuffleSplit
 import torch
 import numpy as np
@@ -14,10 +14,16 @@ class Trainer:
         self.device = self.config.device
         self.run_name = run_name
 
-        # Load data
-        self.messages, self.labels, self.game_ids = load_data(self.config.data.pickle)
-        self.message_encodings, self.labels, self.game_ids = load_pre_embedded(self.config.data.folder)
-        self.labels = np.array(self.labels)
+        use_bow = getattr(self.config.data, "bow", False)
+        if use_bow:
+            self.messages, self.labels, self.game_ids = load_data(self.config.data.pickle)
+            self.message_encodings = encode_to_bow(self.messages)
+            self.labels = np.array(self.labels)
+        else:
+            # Load data
+            self.messages, self.labels, self.game_ids = load_data(self.config.data.pickle)
+            self.message_encodings, self.labels, self.game_ids = load_pre_embedded(self.config.data.folder)
+            self.labels = np.array(self.labels)
 
         # Fix labels [0,2] -> [0,1]
         for i, label in enumerate(self.labels):
@@ -45,8 +51,23 @@ class Trainer:
         self.train_loader = torch.utils.data.DataLoader(self.train_set, batch_size=self.config.training.batch_size, shuffle=True, num_workers=0)
         self.val_loader = torch.utils.data.DataLoader(self.val_set, batch_size=self.config.validation.batch_size, shuffle=False, num_workers=0)
 
+        # Prepare calibration data
+        self.split_val_data()
+        self.X_calibration = torch.tensor(np.array([self.message_encodings[i] for i in self.calibration_idx]), dtype=torch.float32, device=self.device)
+        self.y_calibration = torch.tensor(np.array([self.labels[i] for i in self.calibration_idx]), dtype=torch.float32, device=self.device)
+        self.X_calibration_eval = torch.tensor(np.array([self.message_encodings[i] for i in self.calibration_eval_idx]), dtype=torch.float32, device=self.device)
+        self.y_calibration_eval = torch.tensor(np.array([self.labels[i] for i in self.calibration_eval_idx]), dtype=torch.float32, device=self.device)
+
+        self.calibration_set = torch.utils.data.TensorDataset(self.X_calibration, self.y_calibration)
+        self.calibration_eval_set = torch.utils.data.TensorDataset(self.X_calibration_eval, self.y_calibration_eval)
+        self.calibration_loader = torch.utils.data.DataLoader(self.calibration_set, batch_size=self.config.training.batch_size, shuffle=True, num_workers=0)
+        self.calibration_eval_loader = torch.utils.data.DataLoader(self.calibration_eval_set, batch_size=self.config.validation.batch_size, shuffle=False, num_workers=0)
+
+
     def train(self, model, root_folder):
         train_config = self.config.training
+        stop_at = getattr(train_config, "stop_at", None)
+        num_steps = getattr(train_config, "num_steps", None)
 
         # Optimizer
         match self.config.optimizer.type:
@@ -78,7 +99,7 @@ class Trainer:
         patience_limit = train_config.early_stopping_patience
         stopped = False
         log_text = None
-
+        steps = 0
         # Make sure output directory exists
         os.makedirs(os.path.join(root_folder, "checkpoints"), exist_ok=True)
         model_path = os.path.join(root_folder, "checkpoints", f"{self.run_name}.pth")
@@ -112,14 +133,21 @@ class Trainer:
                 optimizer.step()
 
                 train_loss += loss.item()
+                steps += 1
+                if num_steps and num_steps == steps:
+                    break
                 accuracy(torch.argmax(outputs, dim=1), torch.argmax(labels, dim=1))
-
+            if num_steps and steps >= num_steps:
+                break
             train_acc_list.append(accuracy.compute().item())
             train_loss_list.append(train_loss / len(self.train_loader))
 
             val_acc, val_loss = self.evaluate(model, loss_fn)
             val_acc_list.append(val_acc.item())
             val_loss_list.append(val_loss)
+
+            if stop_at and epoch == stop_at:
+                break
 
             # Early stopping logic
             if val_loss < best_val_loss and not stopped:
@@ -199,3 +227,144 @@ class Trainer:
     def split_by_game_id(self):
         gss = GroupShuffleSplit(n_splits=1, test_size=self.config.data.test_size, random_state=42)
         self.train_idx, self.val_idx = next(gss.split(self.messages, self.labels, self.game_ids))
+
+    def get_class_weights(self):
+        label_indices = np.argmax(self.labels, axis=1)
+        class_counts = np.bincount(label_indices)
+        class_weights = 1.0 / class_counts
+        class_weights = class_weights / class_weights.sum() * len(class_weights)
+        class_weights = torch.tensor(class_weights, dtype=torch.float32, device=self.device)
+        return class_weights
+    
+
+    def find_stopping_epoch(self, model, root_folder, train_idx, val_idx):
+        train_config = self.config.training
+        train_subset = torch.utils.data.Subset(self.train_set, train_idx)
+        val_subset = torch.utils.data.Subset(self.train_set, val_idx)
+        train_subset_loader = torch.utils.data.DataLoader(train_subset, batch_size=self.config.training.batch_size, shuffle=True, num_workers=0)
+        val_subset_loader = torch.utils.data.DataLoader(val_subset, batch_size=self.config.validation.batch_size, shuffle=False, num_workers=0)
+
+
+        # Optimizer
+        match self.config.optimizer.type:
+            case 'adam':
+                optimizer = torch.optim.Adam(model.parameters(), lr=self.config.optimizer.lr, weight_decay=self.config.optimizer.weight_decay)
+            case 'adamW':
+                optimizer = torch.optim.AdamW(model.parameters(), lr=self.config.optimizer.lr, weight_decay=self.config.optimizer.weight_decay)
+            case _:
+                raise NotImplementedError(f"Optimizer {self.config.optimizer.type} not implemented")
+
+        # Weighted CrossEntropy
+        label_indices = np.argmax(self.labels[train_idx], axis=1)
+        class_counts = np.bincount(label_indices)
+        class_weights = 1.0 / class_counts
+        class_weights = class_weights / class_weights.sum() * len(class_weights)
+        class_weights = torch.tensor(class_weights, dtype=torch.float32, device=self.device)
+        loss_fn = torch.nn.CrossEntropyLoss(label_smoothing=self.config.training.label_smoothing, weight=class_weights)
+
+        model.to(self.device)
+        model.train()
+
+        train_acc_list, train_loss_list = [], []
+        val_acc_list, val_loss_list = [], []
+
+        # Early stopping parameters
+        best_val_loss = float('inf')
+        best_epoch = 0
+        patience_counter = 0
+        patience_limit = train_config.early_stopping_patience
+        stopped = False
+        log_text = None
+
+        # Make sure output directory exists
+        os.makedirs(os.path.join(root_folder, "checkpoints"), exist_ok=True)
+        model_path = os.path.join(root_folder, "checkpoints", f"{self.run_name}.pth")
+        info_path = os.path.join(root_folder, "checkpoints", "best_model_info.txt")
+        
+        with torch.no_grad():
+            # Training set metrics
+            train_loss = 0
+            accuracy_train = torchmetrics.Accuracy(num_classes=2, task="binary").to(self.device)
+            for features, labels in train_subset_loader:
+                outputs = model(features)
+                train_loss += loss_fn(outputs, labels).item()
+                accuracy_train(torch.argmax(outputs, dim=1), torch.argmax(labels, dim=1))
+            train_loss_list.append(train_loss / len(train_subset_loader))
+            train_acc_list.append(accuracy_train.compute().item())
+
+            # Validation set metrics
+            val_acc, val_loss = self.evaluate_subset(model, loss_fn, val_subset_loader)
+            val_loss_list.append(val_loss)
+            val_acc_list.append(val_acc.item())
+
+        for epoch in tqdm(range(train_config.epochs), desc=self.config.name):
+            train_loss = 0
+            accuracy = torchmetrics.Accuracy(num_classes=2, task="binary").to(self.device)
+
+            for features, labels in train_subset_loader:
+                optimizer.zero_grad()
+                outputs = model(features)  # Already on GPU
+                loss = loss_fn(outputs, labels)
+                loss.backward()
+                optimizer.step()
+
+                train_loss += loss.item()
+                accuracy(torch.argmax(outputs, dim=1), torch.argmax(labels, dim=1))
+
+            train_acc_list.append(accuracy.compute().item())
+            train_loss_list.append(train_loss / len(self.train_loader))
+
+            val_acc, val_loss = self.evaluate_subset(model, loss_fn, val_subset_loader)
+            val_acc_list.append(val_acc.item())
+            val_loss_list.append(val_loss)
+
+            # Early stopping logic
+            if val_loss < best_val_loss and not stopped:
+                best_val_loss = val_loss
+                best_epoch = epoch
+                patience_counter = 0
+                torch.save(model.state_dict(), model_path)
+                log_text = f"{self.run_name} | {best_val_loss:.6f} | {best_epoch}\n"
+
+                # Write info file
+            else:
+                patience_counter += 1
+
+            if patience_counter >= patience_limit and not stopped:
+                with open(info_path, "a") as f:
+                    f.write(log_text)
+                stopped = True
+                if train_config.continue_training is False:
+                    break
+
+        model.eval()
+        model.to("cpu")
+        if not stopped: # Early stopping never triggered, last version of model gets saved
+            with open(info_path, "a") as f:
+                f.write(f"{self.run_name} | {val_loss:.6f} | {epoch}\n")
+            torch.save(model.state_dict(), model_path)
+        return best_epoch
+    
+    def evaluate_subset(self, model, loss_fn, val_loader):
+        model.eval()
+        accuracy = torchmetrics.Accuracy(num_classes=2, task="binary").to(self.device)
+        val_loss = 0
+
+        with torch.no_grad():
+            for features, labels in val_loader:
+                outputs = model(features)  # Already on GPU
+                val_loss += loss_fn(outputs, labels).item()
+                accuracy(torch.argmax(outputs, dim=1), torch.argmax(labels, dim=1))
+
+        model.train()
+        return accuracy.compute(), val_loss / len(self.val_loader)
+    
+    def split_val_data(self):
+        message_encodings = np.array(self.message_encodings)
+        labels = np.array(self.labels)
+        game_ids = np.array(self.game_ids)
+        gss = GroupShuffleSplit(n_splits=1, test_size=0.5, random_state=42)
+        cal_idx_local, cal_eval_idx_local = next(gss.split(message_encodings[self.val_idx], labels[self.val_idx], game_ids[self.val_idx]))
+
+        self.calibration_idx = self.val_idx[cal_idx_local]
+        self.calibration_eval_idx = self.val_idx[cal_eval_idx_local]

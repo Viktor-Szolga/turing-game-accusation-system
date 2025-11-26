@@ -19,6 +19,7 @@ training:
   epochs: 100
   label_smoothing: 0.05
   early_stopping_patience: 10
+  continue_training: False
 
 validation:
   batch_size: 64
