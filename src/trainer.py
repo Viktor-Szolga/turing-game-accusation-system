@@ -84,7 +84,7 @@ class Trainer:
         class_weights = 1.0 / class_counts
         class_weights = class_weights / class_weights.sum() * len(class_weights)
         class_weights = torch.tensor(class_weights, dtype=torch.float32, device=self.device)
-        loss_fn = torch.nn.CrossEntropyLoss(label_smoothing=train_config.label_smoothing, weight=class_weights).to(self.device)
+        loss_fn = torch.nn.CrossEntropyLoss(label_smoothing=train_config.label_smoothing, weight=class_weights)
 
         model.to(self.device)
         model.train()
@@ -108,22 +108,22 @@ class Trainer:
         with torch.no_grad():
             # Training set metrics
             train_loss = 0
-            #accuracy_train = torchmetrics.Accuracy(num_classes=2, task="binary").to(self.device)
+            accuracy_train = torchmetrics.Accuracy(num_classes=2, task="binary").to(self.device)
             for features, labels in self.train_loader:
                 outputs = model(features)
                 train_loss += loss_fn(outputs, labels).item()
-                #accuracy_train(torch.argmax(outputs, dim=1), torch.argmax(labels, dim=1))
+                accuracy_train(torch.argmax(outputs, dim=1), torch.argmax(labels, dim=1))
             train_loss_list.append(train_loss / len(self.train_loader))
-            #train_acc_list.append(accuracy_train.compute().item())
+            train_acc_list.append(accuracy_train.compute().item())
 
             # Validation set metrics
             val_acc, val_loss = self.evaluate(model, loss_fn)
             val_loss_list.append(val_loss)
-            #val_acc_list.append(val_acc.item())
+            val_acc_list.append(val_acc.item())
 
         for epoch in tqdm(range(train_config.epochs), desc=self.config.name):
             train_loss = 0
-            #accuracy = torchmetrics.Accuracy(num_classes=2, task="binary").to(self.device)
+            accuracy = torchmetrics.Accuracy(num_classes=2, task="binary").to(self.device)
 
             for features, labels in self.train_loader:
                 optimizer.zero_grad()
@@ -136,14 +136,14 @@ class Trainer:
                 steps += 1
                 if num_steps and num_steps == steps:
                     break
-                #accuracy(torch.argmax(outputs, dim=1), torch.argmax(labels, dim=1))
+                accuracy(torch.argmax(outputs, dim=1), torch.argmax(labels, dim=1))
             if num_steps and steps >= num_steps:
                 break
-            #train_acc_list.append(accuracy.compute().item())
+            train_acc_list.append(accuracy.compute().item())
             train_loss_list.append(train_loss / len(self.train_loader))
 
             val_acc, val_loss = self.evaluate(model, loss_fn)
-            #val_acc_list.append(val_acc.item())
+            val_acc_list.append(val_acc.item())
             val_loss_list.append(val_loss)
 
             if stop_at and epoch == stop_at:
@@ -178,17 +178,16 @@ class Trainer:
 
     def evaluate(self, model, loss_fn):
         model.eval()
-        #accuracy = torchmetrics.Accuracy(num_classes=2, task="binary").to(self.device)
+        accuracy = torchmetrics.Accuracy(num_classes=2, task="binary").to(self.device)
         val_loss = 0
 
         with torch.no_grad():
             for features, labels in self.val_loader:
                 outputs = model(features)  # Already on GPU
                 val_loss += loss_fn(outputs, labels).item()
-                #accuracy(torch.argmax(outputs, dim=1), torch.argmax(labels, dim=1))
+                accuracy(torch.argmax(outputs, dim=1), torch.argmax(labels, dim=1))
 
         model.train()
-        return None, val_loss / len(self.val_loader)
         return accuracy.compute(), val_loss / len(self.val_loader)
 
     def split_by_user_id(self):
@@ -261,7 +260,7 @@ class Trainer:
         class_weights = 1.0 / class_counts
         class_weights = class_weights / class_weights.sum() * len(class_weights)
         class_weights = torch.tensor(class_weights, dtype=torch.float32, device=self.device)
-        loss_fn = torch.nn.CrossEntropyLoss(label_smoothing=self.config.training.label_smoothing, weight=class_weights).to(self.device)
+        loss_fn = torch.nn.CrossEntropyLoss(label_smoothing=self.config.training.label_smoothing, weight=class_weights)
 
         model.to(self.device)
         model.train()
