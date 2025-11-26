@@ -76,6 +76,7 @@ for ax, N_BINS in zip(axes, bins_list):
         # Collect probabilities and labels
         probs, labels_arr = [], []
         loader = trainer.calibration_eval_loader
+        loader = trainer.calibration_loader
         for features, targets in loader:
             output = model(features.to(config.device)).detach().cpu()
             for message, target in zip(output, targets):
