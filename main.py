@@ -5,8 +5,9 @@ from src.utils import initialize_model
 from omegaconf import OmegaConf
 from src.trainer import Trainer
 import os
-import time  # <-- for timing
+import time
 import pickle
+
 
 if __name__ == "__main__":
     root_folder = "early_stopping_1_layer"  # "early_stopping" or "gridsearch"

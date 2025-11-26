@@ -1,0 +1,3 @@
+run000 | epochs: 301 | time (s): 157.06 | final validation loss: 0.3832672
+run001 | epochs: 301 | time (s): 158.26 | final validation loss: 0.4406078
+run002 | epochs: 301 | time (s): 165.63 | final validation loss: 0.4868105

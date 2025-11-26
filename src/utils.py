@@ -4,9 +4,12 @@ import os
 from tqdm import tqdm
 import torch
 import torchmetrics
+from collections import Counter
 from src.models import MessageClassifier, LinearClassifier
 import matplotlib.pyplot as plt
 import seaborn as sns
+from typing import Optional
+import math
 
 def load_data(path: str):
     """
@@ -160,3 +163,156 @@ def visualize_weights(model):
         plt.xlabel("Input units")
         plt.ylabel("Output units")
         plt.show()
+
+
+def get_test_data_loader(load_path, balanced=False):
+    message_encodings, labels, game_ids = load_pre_embedded(load_path)
+    message_encodings = np.array(message_encodings)
+    labels = np.array(labels)
+    for i, label in enumerate(labels):
+        if labels[i][1] != 0:
+            labels[i] = [0, 1]
+
+    if balanced:
+        bot_indices = np.where(labels == 1)[0]
+        human_indices = np.where(labels == 0)[0]
+        n_bots = len(bot_indices)
+        np.random.shuffle(human_indices)
+        keep_humans = human_indices[:n_bots]
+        balanced_indices = np.sort(np.concatenate([bot_indices, keep_humans]))
+        message_encodings = message_encodings[balanced_indices]
+        labels = labels[balanced_indices]
+
+    X_val = torch.tensor(np.array(message_encodings), dtype=torch.float32)
+    y_val = torch.tensor(np.array(labels), dtype=torch.float32)
+    val_set = torch.utils.data.TensorDataset(X_val, y_val)
+    val_loader = torch.utils.data.DataLoader(val_set, batch_size=64, shuffle=False, num_workers=0)
+    return val_loader
+
+def get_full_test_data_loader(balanced=False):
+    message_encodings, labels, game_ids = load_pre_embedded(os.path.join("data", "test_data", "first"))
+    message_encodings2, labels2, game_ids = load_pre_embedded(os.path.join("data", "test_data", "second"))
+    message_encodings += message_encodings2
+    labels += labels2
+    message_encodings = np.array(message_encodings)
+    labels = np.array(labels)
+    for i, label in enumerate(labels):
+        if labels[i][1] != 0:
+            labels[i] = [0, 1]
+
+    if balanced:
+        bot_indices = np.where(labels == 1)[0]
+        human_indices = np.where(labels == 0)[0]
+        n_bots = len(bot_indices)
+        np.random.shuffle(human_indices)
+        keep_humans = human_indices[:n_bots]
+        balanced_indices = np.sort(np.concatenate([bot_indices, keep_humans]))
+        message_encodings = message_encodings[balanced_indices]
+        labels = labels[balanced_indices]
+    X_val = torch.tensor(np.array(message_encodings), dtype=torch.float32)
+    y_val = torch.tensor(np.array(labels), dtype=torch.float32)
+    val_set = torch.utils.data.TensorDataset(X_val, y_val)
+    val_loader = torch.utils.data.DataLoader(val_set, batch_size=64, shuffle=False, num_workers=0)
+    return val_loader
+
+
+def encode_to_bow(messages):
+    all_words = [word.lower() for message in messages for word in message.split(" ")]
+    print(f"Number of words in dataset: {len(all_words)}")
+    most_common_1024 = [s for s, _ in Counter(all_words).most_common(1024)]
+    message_encodings = np.zeros((len(messages), 1024))
+    for i, message in enumerate(messages):
+        for word in message.split(" "):
+            if word.lower() in most_common_1024:
+                index = most_common_1024.index(word.lower())
+                message_encodings[i][index] += 1
+
+    return message_encodings
+
+
+def load_runs(filepath: str):
+    runs = []
+    with open(filepath, "r") as f:
+        for line in f:
+            line = line.strip()
+            if not line:
+                continue
+            run_id, details = line.split(":", 1)
+            parts = [p.strip() for p in details.split("|")]
+            run = {"run_id": run_id.replace(".yaml", "").strip()}
+            for p in parts:
+                if p.startswith("Model"):
+                    run["model"] = p
+                else:
+                    key, val = p.split("=")
+                    run[key.strip()] = float(val.strip())
+            runs.append(run)
+    return runs
+
+
+def query_runs(
+    runs,
+    model: Optional[str] = None,
+    lr: Optional[float] = None,
+    dropout: Optional[float] = None,
+    weight_decay: Optional[float] = None,
+    lr_min: Optional[float] = None,
+    lr_max: Optional[float] = None,
+    dropout_min: Optional[float] = None,
+    dropout_max: Optional[float] = None,
+    weight_decay_min: Optional[float] = None,
+    weight_decay_max: Optional[float] = None,
+    allow_linear: Optional[bool] = False
+):
+    results = []
+    for run in runs:
+        if allow_linear is False:
+            if run["model"].lower() == "model l":
+                continue
+        # model match
+        if model is not None and run["model"].lower() != model.lower():
+            continue
+
+        # exact matches
+        if lr is not None and not math.isclose(run["lr"], lr, rel_tol=1e-9, abs_tol=1e-12):
+            continue
+        if dropout is not None and not math.isclose(run["dropout"], dropout, rel_tol=1e-9, abs_tol=1e-12):
+            continue
+        if weight_decay is not None and not math.isclose(run["weight_decay"], weight_decay, rel_tol=1e-9, abs_tol=1e-12):
+            continue
+
+        # ranges
+        if lr_min is not None and run["lr"] < lr_min:
+            continue
+        if lr_max is not None and run["lr"] > lr_max:
+            continue
+        if dropout_min is not None and run["dropout"] < dropout_min:
+            continue
+        if dropout_max is not None and run["dropout"] > dropout_max:
+            continue
+        if weight_decay_min is not None and run["weight_decay"] < weight_decay_min:
+            continue
+        if weight_decay_max is not None and run["weight_decay"] > weight_decay_max:
+            continue
+
+        results.append(run)
+
+    return results
+
+
+def format_results(runs):
+    run_names = [r["run_id"] for r in runs]
+    legends = [f'{r["model"].split()[-1]} | lr={r["lr"]} | Dropout={r["dropout"]} | Weight decay={r["weight_decay"]}' for r in runs]
+
+    print("```python")
+    print("run_names = [")
+    for r in run_names:
+        print(f'    "{r}",')
+    print(f'    "run138",')
+    print("]\n")
+    print("legends = [")
+    for l in legends:
+        print(f'    "{l}",')
+    print(f'    "best",')
+    print("]")
+    print("```")
