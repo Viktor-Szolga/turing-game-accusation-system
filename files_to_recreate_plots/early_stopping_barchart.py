@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import numpy as np
 
-root_dir = "early_stopping"
+root_dir = "early_stopping_1_layer"
 
 stats = pd.read_csv(os.path.join(root_dir, "architecture_loss_summary.csv"))
 
@@ -27,7 +27,6 @@ ax = sns.barplot(
     palette=colors,
     edgecolor='k'
 )
-
 for i, row in stats.iterrows():
     ax.errorbar(
         x=i,
