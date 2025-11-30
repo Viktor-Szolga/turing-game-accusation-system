@@ -17,7 +17,6 @@ import src.utils as utils
 
 root_dir = "final_model"
 run_names = ["scaled_model_d.pth"]
-#run_names = ["model_d.pth"]
 labels = ["Model D"]
 styles = ['-']
 colors = ['C0']
@@ -25,7 +24,6 @@ alpha = 0.5  # Slight transparency
 
 
 def get_test_metrics(model, loader, device='cpu'):
-    """Compute loss, accuracy, precision, recall, F1 (per class)."""
     model.eval()
     loss_fn = torch.nn.CrossEntropyLoss()
     

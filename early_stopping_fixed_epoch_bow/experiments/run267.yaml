@@ -12,7 +12,7 @@ model:
 training:
   batch_size: 64
   epochs: 600
-  early_stopping_patience: 10
+  early_stopping_patience: 100
   continue_training: false
   stop_at: 4
 validation:
