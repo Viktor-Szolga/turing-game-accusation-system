@@ -1,6 +1,10 @@
-import sys 
+import sys
 import os
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+sys.path.append(
+    os.path.abspath(
+        os.path.join(os.path.dirname(__file__), "..", "..")
+    )
+)
 import itertools
 import yaml
 from pathlib import Path
@@ -24,7 +28,7 @@ base_config = {
 
 seeds = list(range(1, 11))
 # Output folder
-out_dir = Path(os.path.join("runs", "early_stopping_fixed_epoch_bow_average", "experiments"))
+out_dir = Path(os.path.join("experiments", "runs", "early_stopping_fixed_epoch_bow_average", "experiments"))
 out_dir.mkdir(exist_ok=True, parents=True)
 
 stop_ats = [
@@ -34,7 +38,7 @@ stop_ats = [
 ] * len(seeds)
 
 # Directory file (index)
-verzeichnis_file = Path(os.path.join("runs", "early_stopping_fixed_epoch_bow_average", "runs.txt"))
+verzeichnis_file = Path(os.path.join("experiments", "runs", "early_stopping_fixed_epoch_bow_average", "runs.txt"))
 verzeichnis_lines = []
 
 run_id = 0

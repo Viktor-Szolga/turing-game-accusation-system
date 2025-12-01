@@ -12,7 +12,7 @@ from src.trainer import Trainer
 from sklearn.metrics import brier_score_loss
 import src.utils as utils
 
-root_dir = "final_candidates"
+root_dir = "experiments/final_candidates"
 run_names = ["run097", "run108", "run027", "run304"]
 labels = ["1-Layer 256-Neurons", "2-Layer 256-128-Neurons", "3-Layer 128-64-32", "2-Layer 48-24"]
 is_checkpoint = False

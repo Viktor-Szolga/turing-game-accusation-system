@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import numpy as np
 
-root_dir = "runs/early_stopping_1_layer"
+root_dir = "experiments/runs/early_stopping_1_layer"
 
 stats = pd.read_csv(os.path.join(root_dir, "architecture_loss_summary.csv"))
 
