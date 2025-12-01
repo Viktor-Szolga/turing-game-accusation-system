@@ -1,6 +1,10 @@
-import sys 
+import sys
 import os
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+sys.path.append(
+    os.path.abspath(
+        os.path.join(os.path.dirname(__file__), "..", "..")
+    )
+)
 import pickle
 import matplotlib.pyplot as plt
 from matplotlib.ticker import ScalarFormatter
@@ -8,37 +12,28 @@ from itertools import cycle
 import matplotlib.ticker as ticker
 
 root_dir = "experiments/runs/gridsearch"
-
 run_names = [
-    "run048",
-    "run095",
-    "run096",
-    "run097",
-    "run049",
-    "run051",
-    "run053",
+    "run072",
+    "run077",
+    "run082",
+    "run294",
+    "run295",
 ]
 
 legends = [
-    "C | lr=0.001 | Dropout=0.0 | Weight decay=0.0",
-    "C | lr=0.001 | Dropout=0.65 | Weight decay=0.0",
-    "C | lr=0.001 | Dropout=0.75 | Weight decay=0.0",
-    "C | lr=0.001 | Dropout=0.85 | Weight decay=0.0",
-    "C | lr=0.001 | Dropout=0.0 | Weight decay=0.1",
-    "C | lr=0.001 | Dropout=0.0 | Weight decay=0.01",
-    "C | lr=0.001 | Dropout=0.0 | Weight decay=0.001",
+    "B | lr=0.0001 | Dropout=0.85 | Weight decay=0.0",
+    "B | lr=0.0005 | Dropout=0.85 | Weight decay=0.0",
+    "B | lr=0.001 | Dropout=0.85 | Weight decay=0.0",
+    "B | lr=0.01 | Dropout=0.85 | Weight decay=0.0",
+    "B | lr=0.05 | Dropout=0.85 | Weight decay=0.0",
 ]
-
 model_regularizations = [
-    "no",
-    "dropout",
-    "dropout",
-    "dropout",
-    "wd",
-    "wd",
-    "wd",
+    "l",
+    "l",
+    "m",
+    "m",
+    "h"
 ]
-
 
 print("Plotting runs:")
 for r in run_names:
@@ -52,7 +47,7 @@ for run in run_names:
         val_losses.append(data["validation_loss"])
 
 
-reg_technique_colors = {"no": "tab:blue", "dropout": "tab:orange", "wd": "tab:green", "Linear": "tab:purple"}
+reg_technique_colors = {"l": "tab:blue", "m": "tab:orange", "h": "tab:green", "Linear": "tab:purple"}
 
 
 line_styles = ["-", ":", "--", "-", ":", "--", "-"]
@@ -60,7 +55,7 @@ line_widths = [1, 2, 1.5, 1, 2, 1.5, 1]
 alphas = cycle([0.7])
 
 fig, ax = plt.subplots(figsize=(8, 5))
-fig.suptitle("Model C with different regularization applied", y=0.94)
+fig.suptitle("Investigating different learning rates", y=0.94)
 
 
 for validation_loss, model, legend, ls, lw, alpha in zip(
