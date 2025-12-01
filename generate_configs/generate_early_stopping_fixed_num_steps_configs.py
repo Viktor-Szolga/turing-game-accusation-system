@@ -24,7 +24,7 @@ base_config = {
 
 seeds = list(range(1, 11))
 # Output folder
-out_dir = Path(os.path.join("early_stopping_fixed_num_steps", "experiments"))
+out_dir = Path(os.path.join("runs", "early_stopping_fixed_num_steps", "experiments"))
 out_dir.mkdir(exist_ok=True, parents=True)
 
 stop_ats = [
@@ -36,7 +36,7 @@ stop_ats = [
 num_steps = [math.ceil(stop_at * int(15086*4/5)/64) for stop_at in stop_ats] # epoch * num_updates per epoch
 
 # Directory file (index)
-verzeichnis_file = Path(os.path.join("early_stopping_fixed_num_steps", "runs.txt"))
+verzeichnis_file = Path(os.path.join("runs", "early_stopping_fixed_num_steps", "runs.txt"))
 verzeichnis_lines = []
 
 run_id = 0

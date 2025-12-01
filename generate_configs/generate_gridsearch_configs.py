@@ -34,11 +34,11 @@ dropouts = [0, 0.55, 0.65, 0.75, 0.85, 0.95]
 weight_decays = [0, 0.0001, 0.0005, 0.001, 0.005]
 
 # Output folder
-out_dir = Path(os.path.join("gridsearch", "experiments"))
+out_dir = Path(os.path.join("runs", "gridsearch", "experiments"))
 out_dir.mkdir(exist_ok=True, parents=True)
 
 # Verzeichnis file (index)
-verzeichnis_file = Path("gridsearch/runs.txt")
+verzeichnis_file = Path("runs/gridsearch/runs.txt")
 verzeichnis_lines = []
 
 run_id = 0

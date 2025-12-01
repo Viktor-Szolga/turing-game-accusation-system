@@ -24,7 +24,7 @@ base_config = {
 
 seeds = list(range(1, 11))
 # Output folder
-out_dir = Path(os.path.join("early_stopping_fixed_epoch_bow", "experiments"))
+out_dir = Path(os.path.join("runs", "early_stopping_fixed_epoch_bow", "experiments"))
 out_dir.mkdir(exist_ok=True, parents=True)
 
 stop_ats = [
@@ -35,7 +35,7 @@ stop_ats = [
 
 
 # Directory file (index)
-verzeichnis_file = Path(os.path.join("early_stopping_fixed_epoch_bow", "runs.txt"))
+verzeichnis_file = Path(os.path.join("runs", "early_stopping_fixed_epoch_bow", "runs.txt"))
 verzeichnis_lines = []
 
 run_id = 0

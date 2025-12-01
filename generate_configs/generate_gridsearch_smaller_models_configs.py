@@ -33,11 +33,11 @@ weight_decays = [0]
 smoothing_factors = [0, 0.1, 0.2]
 
 # Output folder
-out_dir = Path(os.path.join("gridsearch_smaller_models", "experiments"))
+out_dir = Path(os.path.join("runs", "gridsearch_smaller_models", "experiments"))
 out_dir.mkdir(exist_ok=True, parents=True)
 
 # Verzeichnis file (index)
-verzeichnis_file = Path("gridsearch_smaller_models/runs.txt")
+verzeichnis_file = Path("runs/gridsearch_smaller_models/runs.txt")
 verzeichnis_lines = []
 
 run_id = 0
