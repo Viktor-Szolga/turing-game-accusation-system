@@ -1,6 +1,10 @@
 import sys
 import os
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+sys.path.append(
+    os.path.abspath(
+        os.path.join(os.path.dirname(__file__), "..", "..")
+    )
+)
 import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.calibration import calibration_curve
@@ -10,23 +14,14 @@ from src.utils import initialize_model
 from omegaconf import OmegaConf
 from src.trainer import Trainer
 from sklearn.metrics import brier_score_loss
-import src.utils as utils
 
 N_BINS = 10
-root_dir = "experiments/runs/early_stopping_fixed_epoch"
+root_dir = "experiments/runs/early_stopping"
 model_runs = {
     "Early stopping": [f"run{i:03d}" for i in range(9, 300, 30)],  # Example runs
     "Dropout": [f"run{i}" for i in range(300, 310)]
 }
-model_runs = {
-    "Early stopping": [f"run{i:03d}" for i in range(9, 100, 30)],  # Example runs
-    "Dropout": [f"run{i}" for i in range(300, 303)]
-}
-model_runs = {
-    
-    "128 Neurons": [f"run{i:03d}" for i in range(7, 300, 30)]
-}
-is_checkpoint = False
+is_checkpoint = True
 
 def get_bot_probability(h_i, b_i):
     return np.exp(b_i) / (np.exp(h_i) + np.exp(b_i))
@@ -78,23 +73,17 @@ for ax, (model_label, run_names) in zip(axes, model_runs.items()):
         model.eval()
 
         # Collect probabilities and labels
-        #loader = trainer.train_loader
-        #loader = utils.get_full_test_data_loader()
-        loader = trainer.calibration_eval_loader
-        #loader = utils.get_test_data_loader(os.path.join("data", "test_data", "first"))
         probs, labels_arr = [], []
-        for features, targets in loader:
+        for features, targets in trainer.calibration_eval_loader:
             output = model(features).to(config.device)
-            for sample, target in zip(output, targets):
-                prob = get_bot_probability(sample[0].detach().numpy(), sample[1].detach().numpy())
+            for message, target in zip(output, targets):
+                prob = get_bot_probability(message[0].detach().numpy(), message[1].detach().numpy())
                 probs.append(prob)
                 labels_arr.append(int(target.detach().numpy()[0] == 0))  # 1 = bot, 0 = human
 
         probs = np.array(probs)
         labels_arr = np.array(labels_arr)
 
-        
-        # Balance classes
         bot_indices = np.where(labels_arr == 1)[0]
         human_indices = np.where(labels_arr == 0)[0]
         n_bots = len(bot_indices)
@@ -107,8 +96,9 @@ for ax, (model_label, run_names) in zip(axes, model_runs.items()):
 
         print(f"Balanced dataset: {len(labels_bal)} samples ({len(bot_indices)} bots + {len(keep_humans)} humans)")
 
+        
         fraction_of_positives, mean_predicted_value = calibration_curve(
-            labels_bal, probs_bal, n_bins=N_BINS, strategy='quantile'
+            labels_bal, probs_bal, n_bins=N_BINS, strategy='uniform'
         )
 
         ax.plot(mean_predicted_value, fraction_of_positives, 's-', label=run_name)

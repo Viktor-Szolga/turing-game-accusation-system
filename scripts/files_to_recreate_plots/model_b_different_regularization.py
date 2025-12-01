@@ -1,6 +1,10 @@
-import sys 
+import sys
 import os
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+sys.path.append(
+    os.path.abspath(
+        os.path.join(os.path.dirname(__file__), "..", "..")
+    )
+)
 import pickle
 import matplotlib.pyplot as plt
 from matplotlib.ticker import ScalarFormatter
@@ -10,18 +14,33 @@ import matplotlib.ticker as ticker
 root_dir = "experiments/runs/gridsearch"
 
 run_names = [
+    "run030",
+    "run080",
+    "run081",
     "run082",
-    "run293"
+    "run031",
+    "run033",
+    "run035",
 ]
 
 legends = [
-    "B | lr=0.001 | Dropout=0.85 | Weight decay=0",
-    "Linear Classifier"
+    "B | lr=0.001 | Dropout=0.0 | Weight decay=0.0",
+    "B | lr=0.001 | Dropout=0.65 | Weight decay=0.0",
+    "B | lr=0.001 | Dropout=0.75 | Weight decay=0.0",
+    "B | lr=0.001 | Dropout=0.85 | Weight decay=0.0",
+    "B | lr=0.001 | Dropout=0.0 | Weight decay=0.1",
+    "B | lr=0.001 | Dropout=0.0 | Weight decay=0.01",
+    "B | lr=0.001 | Dropout=0.0 | Weight decay=0.001",
 ]
 
 model_regularizations = [
-    "B",
-    "Linear"
+    "no",
+    "dropout",
+    "dropout",
+    "dropout",
+    "wd",
+    "wd",
+    "wd",
 ]
 
 print("Plotting runs:")
@@ -36,15 +55,15 @@ for run in run_names:
         val_losses.append(data["validation_loss"])
 
 
-reg_technique_colors = {"A": "tab:blue", "B": "tab:orange", "C": "tab:green", "Linear": "tab:purple"}
+reg_technique_colors = {"no": "tab:blue", "dropout": "tab:orange", "wd": "tab:green", "Linear": "tab:purple"}
 
 
-line_styles = cycle(["-", "-."])
-line_widths = cycle([1.5, 1.5])
-alphas = cycle([0.5])
+line_styles = ["-", ":", "--", "-", ":", "--", "-"]
+line_widths = [1, 2, 1.5, 1, 2, 1.5, 1]
+alphas = cycle([0.7])
 
 fig, ax = plt.subplots(figsize=(8, 5))
-fig.suptitle("Best vs Linear", y=0.94)
+fig.suptitle("Model B with different regularization applied", y=0.94)
 
 
 for validation_loss, model, legend, ls, lw, alpha in zip(
