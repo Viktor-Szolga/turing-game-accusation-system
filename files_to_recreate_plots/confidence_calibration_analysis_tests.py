@@ -13,7 +13,7 @@ from sklearn.metrics import brier_score_loss
 import src.utils as utils
 
 N_BINS = 10
-root_dir = "runs/gridsearch_smaller_models"
+root_dir = "experiments/runs/gridsearch_smaller_models"
 run_names = [f"run{i:03d}" for i in range(3)]
 labels = run_names
 is_checkpoint = True

@@ -5,7 +5,7 @@ from src.models import MessageClassifier, LinearClassifier
 from src.utils import visualize_weights
 import torch
 
-root_folder = "runs/gridsearch"
+root_folder = "experiments/runs/gridsearch"
 
 # Linear Classifier
 model = LinearClassifier(1024, 2)

@@ -1,13 +1,18 @@
-import sys 
+import sys
 import os
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+sys.path.append(
+    os.path.abspath(
+        os.path.join(os.path.dirname(__file__), "..", "..")
+    )
+)
 import itertools
 import yaml
 from pathlib import Path
 import os
+
 # Base config template
 base_config = {
-    "data": {"split_by": "userID"},
+    "data": {"split_by": "gameID"},
     "model": {
         "type": "MessageClassifier",
         "input_size": 1024,
@@ -15,29 +20,29 @@ base_config = {
         "output_size": 2,
         "dropout": 0.75,
     },
-    "training": {"batch_size": 64, "epochs": 300, "label_smoothing": 0.05},
+    "training": {"batch_size": 64, "epochs": 300},
     "validation": {"batch_size": 64},
     "optimizer": {"type": "adamW", "lr": 5e-4, "weight_decay": 5e-4},
 }
 
 # Model variants
 model_variants = {
-    #"Model D": [1],
-    "Model E": [512]
+    "Model A": [32],
+    "Model B": [48, 24],
+    "Model C": [512, 128, 32],
 }
 
 # Parameter grids
-learning_rates = [0.0001]
-dropouts = [0]
-weight_decays = [0]
-smoothing_factors = [0, 0.1, 0.2]
+learning_rates = [0.0001, 0.0005, 0.001]
+dropouts = [0, 0.55, 0.65, 0.75, 0.85, 0.95]
+weight_decays = [0, 0.0001, 0.0005, 0.001, 0.005]
 
 # Output folder
-out_dir = Path(os.path.join("runs", "gridsearch_smaller_models", "experiments"))
+out_dir = Path(os.path.join("experiments", "runs", "gridsearch", "experiments"))
 out_dir.mkdir(exist_ok=True, parents=True)
 
 # Verzeichnis file (index)
-verzeichnis_file = Path("runs/gridsearch_smaller_models/runs.txt")
+verzeichnis_file = Path("experiments/runs/gridsearch/runs.txt")
 verzeichnis_lines = []
 
 run_id = 0
@@ -47,11 +52,11 @@ def save_config(config, run_id, description):
     fname = out_dir / f"run{run_id:03d}.yaml"
     with open(fname, "w") as f:
         yaml.dump(config, f, sort_keys=False)
-    verzeichnis_lines.append(f"{fname.name}: {description}")
+    verzeichnis_lines.append(f"{fname.name} | {description}")
 
 # Generate configs (with safeguard)
 for model_name, hidden_sizes in model_variants.items():
-    for lr, d, wd, smoothing in itertools.product(learning_rates, dropouts, weight_decays, smoothing_factors):
+    for lr, d, wd in itertools.product(learning_rates, dropouts, weight_decays):
         cfg = base_config.copy()
         cfg["model"] = cfg["model"].copy()
         cfg["optimizer"] = cfg["optimizer"].copy()
@@ -60,7 +65,6 @@ for model_name, hidden_sizes in model_variants.items():
         cfg["model"]["dropout"] = d
         cfg["optimizer"]["lr"] = lr
         cfg["optimizer"]["weight_decay"] = wd
-        cfg["training"]["label_smoothing"] = smoothing
 
         # Convert config to YAML string (normalized) for deduplication
         cfg_str = yaml.dump(cfg, sort_keys=True)
@@ -68,7 +72,7 @@ for model_name, hidden_sizes in model_variants.items():
             continue  # skip duplicate
         seen_configs.add(cfg_str)
 
-        desc = f"{model_name} | lr={lr} | dropout={d} | weight_decay={wd} | label_smoothing={smoothing}"
+        desc = f"{model_name} | lr={lr} | dropout={d} | weight_decay={wd}"
         save_config(cfg, run_id, desc)
         run_id += 1
 

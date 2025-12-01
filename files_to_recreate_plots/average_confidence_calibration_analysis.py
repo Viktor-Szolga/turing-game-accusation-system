@@ -13,7 +13,7 @@ from sklearn.metrics import brier_score_loss
 import src.utils as utils
 
 N_BINS = 10
-root_dir = "runs/early_stopping_fixed_epoch"
+root_dir = "experiments/runs/early_stopping_fixed_epoch"
 model_runs = {
     "Early stopping": [f"run{i:03d}" for i in range(9, 300, 30)],  # Example runs
     "Dropout": [f"run{i}" for i in range(300, 310)]
