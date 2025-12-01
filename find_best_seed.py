@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 import os
 
-root_dir = "early_stopping_fixed_epoch_average"
+root_dir = "runs/early_stopping_fixed_epoch"
 
 run_info = pd.read_csv(
     os.path.join(root_dir, "runs.txt"),

@@ -12,7 +12,7 @@ from src.trainer import Trainer
 from sklearn.metrics import brier_score_loss
 
 N_BINS = 10
-root_dir = "early_stopping"
+root_dir = "runs/early_stopping"
 model_runs = {
     "Early stopping": [f"run{i:03d}" for i in range(9, 300, 30)],  # Example runs
     "Dropout": [f"run{i}" for i in range(300, 310)]

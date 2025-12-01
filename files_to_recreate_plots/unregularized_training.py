@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 from itertools import cycle
 import matplotlib.ticker as ticker
 
-root_dir = os.path.join("gridsearch")
+root_dir = os.path.join("runs", "gridsearch")
 runs = load_runs(os.path.join(root_dir, "runs.txt"))
 # Example query
 res = query_runs(runs, model="Model B", dropout=0.85, weight_decay=0)

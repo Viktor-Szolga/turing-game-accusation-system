@@ -24,11 +24,11 @@ base_config = {
 
 seeds = list(range(1, 11))
 # Output folder
-out_dir = Path(os.path.join("early_stopping", "experiments"))
+out_dir = Path(os.path.join("runs", "early_stopping", "experiments"))
 out_dir.mkdir(exist_ok=True, parents=True)
 
 # Directory file (index)
-verzeichnis_file = Path(os.path.join("early_stopping", "runs.txt"))
+verzeichnis_file = Path(os.path.join("rusn", "early_stopping", "runs.txt"))
 verzeichnis_lines = []
 
 run_id = 0

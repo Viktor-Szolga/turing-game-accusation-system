@@ -207,5 +207,5 @@ def main(root_dir):
 
 
 if __name__ == "__main__":
-    root_dir = "gridsearch"
+    root_dir = "runs/gridsearch"
     main(root_dir)

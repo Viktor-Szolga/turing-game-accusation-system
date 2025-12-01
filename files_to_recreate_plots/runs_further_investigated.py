@@ -7,7 +7,7 @@ from matplotlib.ticker import ScalarFormatter
 from itertools import cycle
 import matplotlib.ticker as ticker
 
-root_dir = "gridsearch"
+root_dir = "runs/gridsearch"
 
 run_names = [
     "run132",
