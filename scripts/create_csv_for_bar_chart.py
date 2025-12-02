@@ -9,7 +9,7 @@ import pandas as pd
 import numpy as np
 import os
 
-root_dir = "runs/early_stopping_fixed_epoch_bow_average"
+root_dir = "runs/early_stopping_fixed_epoch_bow_average" # Choose the folder for which the csv should be created/updated
 
 run_info = pd.read_csv(
     os.path.join(root_dir, "runs.txt"),

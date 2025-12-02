@@ -1,7 +1,10 @@
-import sys 
+import sys
 import os
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
-
+sys.path.append(
+    os.path.abspath(
+        os.path.join(os.path.dirname(__file__), "..", "..")
+    )
+)
 import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.calibration import calibration_curve
@@ -14,7 +17,7 @@ from sklearn.metrics import brier_score_loss
 from omegaconf import OmegaConf
 import src.utils as utils
 
-root_dir = "temperature_scaling"
+root_dir = "experiments/temperature_scaling"
 run_names = ["run097.pth", "temperature_scaled_run097.pth", "run304.pth", "temperature_scaled_run304.pth"]
 labels = ["Model D", "Model D", "Model B", "Model B"]
 styles = ['--', '-', '--', '-']
@@ -48,9 +51,9 @@ for ax, N_BINS in zip(axes, bins_list):
 
         # Load configs
         config_name = f"{run_name.replace('.pth', '')}.yaml"
-        default_config = OmegaConf.load(os.path.join("early_stopping_fixed_epoch", "experiments", "default.yaml"))
+        default_config = OmegaConf.load(os.path.join("experiments", "runs", "early_stopping_fixed_epoch", "experiments", "default.yaml"))
         specific_config = OmegaConf.load(os.path.join(
-            "early_stopping_fixed_epoch", "experiments", 
+            "experiments", "runs", "early_stopping_fixed_epoch", "experiments", 
             config_name[19:] if len(config_name) > 19 else config_name
         ))
         config = OmegaConf.merge(default_config, specific_config)
