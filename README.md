@@ -21,38 +21,42 @@ The project uses [Poetry](https://python-poetry.org/) for dependency management.
    ```
 
 ## Running Experiments
-The main entry point for all experiments is:
+The entry point to train models is:
 ```bash
-python main.py
+python train.py
 ```
 This script:
-- Trains all classifiers with different configurations as described in the thesis.
+- Trains all classifier configurations from the specified folder.
 - Stores results and model checkpoints in the appropriate folders.
+
+
+To evaluate the final model on the test set you can use:
+```bash
+python test.py
+```
 
 All experiment configurations are stored as YAML files in the `experiments/` folder.
 
 ## Trained Models
 - All trained model state dictionaries are saved in the `trained_models/` directory.
-- The final model selected in the thesis is:
-
-  `trained_models/run082.pth`
+- The final model selected in the thesis can be found in:
+  `final_model/scaled_model_d.pth`
 
 ## Data and Preprocessing
 - **BoW Encodings:** To calculate the Bag of Words encodings used run:
 ```bash
-python BoW_encodings.py
+python data/generate_encodings/BoW_encodings.py
 ```
-- **Sentence Embeddings:** Precomputed encodings are included in the repository. (They were originally generated via `encode_data.ipynb`, which connects to a local server and therefore cannot be rerun directly.)
+- **Sentence Embeddings:** Precomputed encodings are included in the repository. (They were originally generated via the `encode_data.ipynb` notebook, which connects to a local server and therefore cannot be rerun directly.)
 
 ## Recreating Plots
-Use `create_plots.py` and `create_plots_manually.py` to generate the visualizations from the thesis:
-
-Make sure to set the variables correctly using the information in `create_plots_manually_variables.py`.
+Use the different files in `scripts/plots` to recreate the plots from the thesis.
 
 ## Analysis and Evaluation
 The repository also includes notebooks with the analysis and evaluation performed during the thesis:
 
+- `analysis/BoW_vs_Sentence_Embedding_KNN.ipynb`: Contains the training of the KNN models presented in the thesis.
 - `analysis/data_analysis.ipynb`: Contains the data exploration and analysis steps.
 - `analysis/classifier_evaluation.ipynb`: Contains the evaluation of the trained classifiers.
 
-The analysis in classifier_evaluation requires the encoding model running on the Turing Game server.
+The analysis in classifier_evaluation requires the encoding model running on the Turing Game server and can thus also not be rerun directly.
