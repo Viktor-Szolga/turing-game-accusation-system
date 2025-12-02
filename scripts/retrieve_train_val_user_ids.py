@@ -14,6 +14,7 @@ from src.trainer import Trainer
 import os
 import pickle
 
+# Split is always the same use any config to initialize trainer. The script extract the ids of the users in the train data and the users in validation data
 root_dir = "runs/early_stopping_fixed_epoch"
 config_name = "run127.yaml"
 training_information = {}

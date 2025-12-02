@@ -87,9 +87,9 @@ for ax, N_BINS in zip(axes, bins_list):
 
         # Load configs
         config_name = f"run097.yaml"
-        default_config = OmegaConf.load(os.path.join("early_stopping_fixed_epoch", "experiments", "default.yaml"))
+        default_config = OmegaConf.load(os.path.join("experiments", "runs", "early_stopping_fixed_epoch", "experiments", "default.yaml"))
         specific_config = OmegaConf.load(os.path.join(
-            "early_stopping_fixed_epoch", "experiments", 
+            "experiments", "runs", "early_stopping_fixed_epoch", "experiments", 
             config_name[19:] if len(config_name) > 19 else config_name
         ))
         config = OmegaConf.merge(default_config, specific_config)
@@ -98,7 +98,7 @@ for ax, N_BINS in zip(axes, bins_list):
 
         torch.manual_seed(config.misc.seed)
         np.random.seed(config.misc.seed)
-        random.seed(config.misc.seed)
+        random.seed(config.misc.seed)   
 
         trainer = Trainer(config, config_name.replace('.yaml',''))
         base_model = initialize_model(config)

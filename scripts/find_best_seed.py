@@ -9,7 +9,7 @@ import pandas as pd
 import numpy as np
 import os
 
-root_dir = "runs/early_stopping_fixed_epoch"
+root_dir = "runs/early_stopping_fixed_epoch" # or "runs/early_stopping_fixed_epoch_bow"
 
 run_info = pd.read_csv(
     os.path.join(root_dir, "runs.txt"),
