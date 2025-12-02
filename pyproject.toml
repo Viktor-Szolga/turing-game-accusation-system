@@ -20,6 +20,5 @@ dependencies = [
     "tqdm>=4.67",
     "omegaconf>=2.3",
     "openai>=1.100",
-    "sentence-transformers>=5.1",
     "seaborn>=0.13",
 ]
