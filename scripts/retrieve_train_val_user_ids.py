@@ -21,8 +21,8 @@ training_information = {}
 print("cuda" if torch.cuda.is_available() else "cpu")
 
 # Merge default config with run config to ensure every value is set
-default_config = OmegaConf.load(os.path.join(root_dir, "experiments", "default.yaml"))
-specific_config = OmegaConf.load(os.path.join(root_dir, "experiments", config_name))
+default_config = OmegaConf.load(os.path.join(root_dir, "configs", "default.yaml"))
+specific_config = OmegaConf.load(os.path.join(root_dir, "configs", config_name))
 config = OmegaConf.merge(default_config, specific_config)
 config.device = "cuda" if torch.cuda.is_available() else "cpu"
 config.name = config_name

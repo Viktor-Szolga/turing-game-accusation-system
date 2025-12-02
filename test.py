@@ -87,9 +87,9 @@ for ax, N_BINS in zip(axes, bins_list):
 
         # Load configs
         config_name = f"run097.yaml"
-        default_config = OmegaConf.load(os.path.join("experiments", "runs", "early_stopping_fixed_epoch", "experiments", "default.yaml"))
+        default_config = OmegaConf.load(os.path.join("experiments", "runs", "early_stopping_fixed_epoch", "configs", "default.yaml"))
         specific_config = OmegaConf.load(os.path.join(
-            "experiments", "runs", "early_stopping_fixed_epoch", "experiments", 
+            "experiments", "runs", "early_stopping_fixed_epoch", "configs", 
             config_name[19:] if len(config_name) > 19 else config_name
         ))
         config = OmegaConf.merge(default_config, specific_config)

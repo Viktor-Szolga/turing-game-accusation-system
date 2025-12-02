@@ -28,7 +28,7 @@ base_config = {
 
 seeds = list(range(1, 11))
 # Output folder
-out_dir = Path(os.path.join("experiments", "runs", "early_stopping", "experiments"))
+out_dir = Path(os.path.join("experiments", "runs", "early_stopping", "configs"))
 out_dir.mkdir(exist_ok=True, parents=True)
 
 # Directory file (index)

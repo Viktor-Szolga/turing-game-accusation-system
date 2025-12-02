@@ -57,8 +57,8 @@ if __name__ == "__main__":
     is_checkpoint = False
     
     # Load configs
-    default_config = OmegaConf.load(os.path.join(root_folder, "experiments", "default.yaml"))
-    specific_config = OmegaConf.load(os.path.join(root_folder, "experiments", config_name))
+    default_config = OmegaConf.load(os.path.join(root_folder, "configs", "default.yaml"))
+    specific_config = OmegaConf.load(os.path.join(root_folder, "configs", config_name))
     config = OmegaConf.merge(default_config, specific_config)
     config.device = "cuda" if torch.cuda.is_available() else "cpu"
     config.name = config_name
