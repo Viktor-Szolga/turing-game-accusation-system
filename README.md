@@ -45,7 +45,7 @@ All experiment configurations are stored as YAML files in the `experiments/` fol
 ## Data and Preprocessing
 - **BoW Encodings:** To calculate the Bag of Words encodings used run:
 ```bash
-python data/generate_encodings/BoW_encodings.py
+python data/generate_encodings/BoW_encoding.py
 ```
 - **Sentence Embeddings:** Precomputed encodings are included in the repository. (They were originally generated via the `encode_data.ipynb` notebook, which connects to a local server and therefore cannot be rerun directly.)
 
