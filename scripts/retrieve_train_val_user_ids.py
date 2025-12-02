@@ -2,7 +2,7 @@ import sys
 import os
 sys.path.append(
     os.path.abspath(
-        os.path.join(os.path.dirname(__file__), "..", "..")
+        os.path.join(os.path.dirname(__file__), "..")
     )
 )
 import torch
@@ -15,7 +15,7 @@ import os
 import pickle
 
 # Split is always the same use any config to initialize trainer. The script extract the ids of the users in the train data and the users in validation data
-root_dir = "runs/early_stopping_fixed_epoch"
+root_dir = "experiments/runs/early_stopping_fixed_epoch"
 config_name = "run127.yaml"
 training_information = {}
 print("cuda" if torch.cuda.is_available() else "cpu")

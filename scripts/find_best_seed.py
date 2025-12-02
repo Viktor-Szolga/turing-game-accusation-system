@@ -2,14 +2,14 @@ import sys
 import os
 sys.path.append(
     os.path.abspath(
-        os.path.join(os.path.dirname(__file__), "..", "..")
+        os.path.join(os.path.dirname(__file__), "..")
     )
 )
 import pandas as pd
 import numpy as np
 import os
 
-root_dir = "runs/early_stopping_fixed_epoch" # or "runs/early_stopping_fixed_epoch_bow"
+root_dir = "experiments/runs/early_stopping_fixed_epoch" 
 
 run_info = pd.read_csv(
     os.path.join(root_dir, "runs.txt"),
