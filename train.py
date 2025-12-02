@@ -10,7 +10,7 @@ import pickle
 
 
 if __name__ == "__main__":
-    root_folder = "runs/gridsearch" # specify path to run dir
+    root_folder = "experiments/runs/testgridsearch" # specify path to run dir
     os.makedirs(os.path.join(root_folder, "training_information"), exist_ok=True)
     os.makedirs(os.path.join(root_folder, "trained_models"), exist_ok=True)
     os.makedirs(os.path.join(root_folder, "checkpoints"), exist_ok=True)
