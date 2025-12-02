@@ -28,7 +28,7 @@ base_config = {
 
 seeds = list(range(1, 11))
 # Output folder
-out_dir = Path(os.path.join("experiments", "runs", "early_stopping_fixed_epoch_bow_average", "experiments"))
+out_dir = Path(os.path.join("experiments", "runs", "early_stopping_fixed_epoch_bow_average", "configs"))
 out_dir.mkdir(exist_ok=True, parents=True)
 
 stop_ats = [

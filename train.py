@@ -22,15 +22,15 @@ if __name__ == "__main__":
     print("cuda" if torch.cuda.is_available() else "cpu")
 
     # Repeat for each experiment to be performed
-    for config_name in os.listdir(os.path.join(root_folder, "experiments")):
+    for config_name in os.listdir(os.path.join(root_folder, "configs")):
         if config_name == "default.yaml":
             continue
         if config_name[:-5] in [name[:-4] for name in os.listdir(os.path.join(root_folder, "training_information"))]:
             continue
 
         # Merge default config with run config to ensure every value is set
-        default_config = OmegaConf.load(os.path.join(root_folder, "experiments", "default.yaml"))
-        specific_config = OmegaConf.load(os.path.join(root_folder, "experiments", config_name))
+        default_config = OmegaConf.load(os.path.join(root_folder, "configs", "default.yaml"))
+        specific_config = OmegaConf.load(os.path.join(root_folder, "configs", config_name))
         config = OmegaConf.merge(default_config, specific_config)
         config.device = "cuda" if torch.cuda.is_available() else "cpu"
         config.name = config_name
