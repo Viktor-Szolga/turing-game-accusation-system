@@ -52,7 +52,7 @@ def set_temperature(scaled_model, valid_loader, device='cpu'):
 
 
 if __name__ == "__main__":
-    root_folder = "runs/early_stopping_fixed_epoch"
+    root_folder = "experiments/runs/early_stopping_fixed_epoch"
     config_name = "run304.yaml" # or run097.yaml
     is_checkpoint = False
     
@@ -91,5 +91,5 @@ if __name__ == "__main__":
     
     # Save the temperature-scaled model
     os.makedirs("temperature_scaling", exist_ok=True)
-    torch.save(scaled_model.state_dict(), f"temperature_scaling/temperature_scaled_{config_name[:-5]}.pth")
+    torch.save(scaled_model.state_dict(), f"experiments/runs/temperature_scaling/temperature_scaled_{config_name[:-5]}.pth")
     print("Saved temperature-scaled model!")

@@ -9,7 +9,7 @@ import itertools
 import yaml
 from pathlib import Path
 import os
-import math 
+
 # Base config template
 base_config = {
     "data": {"split_by": "gameID"},
@@ -20,7 +20,7 @@ base_config = {
         "output_size": 2,
         "dropout": 0.0,  # no dropout
     },
-    "training": {"batch_size": 64, "epochs": 600, "early_stopping_patience": 10, "continue_training": False, "num_steps":None},
+    "training": {"batch_size": 64, "epochs": 600, "early_stopping_patience": 100, "continue_training": False, "stop_at":None},
     "validation": {"batch_size": 64},
     "optimizer": {"type": "adamW", "lr": 0.0001, "weight_decay": 0.0},  # low LR, no weight decay
     "misc": {"seed": 42}
@@ -28,19 +28,17 @@ base_config = {
 
 seeds = list(range(1, 11))
 # Output folder
-out_dir = Path(os.path.join("experiments", "runs", "early_stopping_fixed_num_steps", "experiments"))
+out_dir = Path(os.path.join("experiments", "runs", "early_stopping_fixed_epoch_bow_average", "experiments"))
 out_dir.mkdir(exist_ok=True, parents=True)
 
 stop_ats = [
-    69, 35, 22, 23, 16, 14, 11, 6, 7, 7,
-    72, 49, 26, 20, 11, 8, 6, 4, 3, 2,
-    64, 48, 42, 33, 14, 12, 5, 3, 3, 2
-]*len(seeds)
-
-num_steps = [math.ceil(stop_at * int(15086*4/5)/64) for stop_at in stop_ats] # epoch * num_updates per epoch
+    68, 42, 23, 24, 15, 15, 11, 8, 8, 7,
+    78, 48, 29, 20, 11, 8, 6, 4, 3, 2,
+    61, 48, 43, 35, 15, 11, 5, 3, 3, 2
+] * len(seeds)
 
 # Directory file (index)
-verzeichnis_file = Path(os.path.join("experiments", "runs", "early_stopping_fixed_num_steps", "runs.txt"))
+verzeichnis_file = Path(os.path.join("experiments", "runs", "early_stopping_fixed_epoch_bow_average", "runs.txt"))
 verzeichnis_lines = []
 
 run_id = 0
@@ -64,7 +62,7 @@ for seed in seeds:
         cfg["misc"]["seed"] = seed
         cfg["model"] = cfg["model"].copy()
         cfg["model"]["hidden_sizes"] = hidden_sizes
-        cfg["training"]["num_steps"] = num_steps[run_id]
+        cfg["training"]["stop_at"] = stop_ats[run_id]
         desc = f"seed:{seed} | 1-layer | {hidden_sizes[0]} neurons"
         cfg_str = yaml.dump(cfg, sort_keys=True)
         if cfg_str not in seen_configs:
