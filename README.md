@@ -1,5 +1,5 @@
 # Reverse Turing Game Classifier – Bachelor Thesis
-This repository contains the code, trained models, and experiment configurations used for my bachelor thesis. It provides all scripts and data required to recreate the experimental results and plots described in the thesis.
+This repository preserves the code, experiment configurations, and notebook source used for my bachelor thesis. Datasets, encodings, checkpoints, training logs, generated results, and notebook outputs have been removed from the entire Git history to avoid storing reproducible artifacts. Git LFS is no longer required. See [ARTIFACTS.md](ARTIFACTS.md) for the missing inputs and regeneration requirements.
 
 ## Installation
 The project uses [Poetry](https://python-poetry.org/) for dependency management.
@@ -38,16 +38,14 @@ python test.py
 All experiment configurations are stored as YAML files in the `experiments/` folder.
 
 ## Trained Models
-- All trained model state dictionaries are saved in the `trained_models/` directory.
-- The final model selected in the thesis can be found in:
-  `final_model/scaled_model_d.pth`
+Model weights are not distributed in this source-only repository. Training recreates the configured checkpoints locally. The original thesis used `final_model/scaled_model_d.pth`, which has also been removed; evaluation requires regenerating or separately supplying the appropriate model.
 
 ## Data and Preprocessing
 - **BoW Encodings:** To calculate the Bag of Words encodings used run:
 ```bash
 python data/generate_encodings/BoW_encoding.py
 ```
-- **Sentence Embeddings:** Precomputed encodings are included in the repository. (They were originally generated via the `encode_data.ipynb` notebook, which connects to a local server and therefore cannot be rerun directly.)
+- **Sentence Embeddings:** Precomputed encodings are no longer included. They were generated via `data/generate_encodings/encode_data.ipynb`, which connects to a local server. Recreating them requires access to that original encoding service (or a compatible replacement) and the original raw data; it is not a standalone download-and-run workflow.
 
 ## Recreating Plots
 Use the different files in `scripts/plots` to recreate the plots from the thesis.
